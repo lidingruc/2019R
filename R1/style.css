@@ -1,0 +1,15 @@
+/* Whole document: */
+body{
+  font-family:  "Times New Roman";
+  font-size: 14pt;
+}
+
+code.r{
+  font-size: 14pt;
+  font-family:  "Consolas";
+}
+
+pre {
+  font-size: 14.5px;
+  font-family:  "Consolas";
+}

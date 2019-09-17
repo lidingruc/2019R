@@ -1,0 +1,83 @@
+.quote {
+    border: dotted 1px #4E4E4E;
+    background-color: #F2F2F2;
+    color: black;
+    padding: 20px;
+    font-style: italic;
+    font-size: 14pt;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.syntax {
+    background-color: #8ECBEA;
+    color: white;
+    padding: 10px;
+    font-family: "Courier New", Courier, monospace;
+    font-style: bold;
+    margin-bottom: 10px;
+}
+
+.question {
+    background-color: #D4E5F0;
+    padding: 5px;
+    font-size: 16pt;
+    margin: 5px;
+}
+
+.app {
+    background-color: #88CE83;
+    color: white;
+    padding: 20px;
+    font-style: bold;
+    margin-bottom: 20px;
+    font-size: 16pt;
+}
+
+pre {
+  margin-bottom: 0px;
+}
+
+#myImageP95 img {
+  width: 95%;
+  height: 95%;
+}
+
+
+#myImageP90 img {
+  width: 90%;
+  height: 90%;
+}
+
+#myImageP70 img {
+  width: 70%;
+  height: 70%;
+}
+
+#myImageP50 img {
+  width: 50%;
+  height: 50%;
+}
+#myImageP30 img {
+  width: 30%;
+  height: 30%;
+}
+
+
+
+.column-left{
+  float: left;
+  width: 40%;
+  text-align: left;
+}
+
+.column-center{
+  display: inline-block;
+  width: 30%;
+  text-align: center;
+}
+.column-right{
+  float: right;
+  width: 60%;
+  text-align: right;
+}
