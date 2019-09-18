@@ -200,7 +200,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 提交作业11：选取相关演示命令的一部分或者全部（不少于300行），转换成为rmd文件。
 
 
-## 第12讲、异型：文本分析
+## 第12讲、语言：文本分析
 
 课前预习：
 
@@ -231,6 +231,3 @@ python爬虫：http://note.youdao.com/noteshare?id=8d72a2741f381b292d40c7583047c
 
 提交作业13：尝试爬取北大未名BBS所有学生社团版面开版时间
 https://bbs.pku.edu.cn/v2/board.php?bid=682
-
-
- 

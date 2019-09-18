@@ -1,9 +1,10 @@
 ---
 title: "R语言介绍及基础操作"
 author: "李丁"
-date: "201年月13日"
-Output:
+date: "2019年9月13日"
+output:
   ioslides_presentation:
+    highlight: pygments
     widescreen: yes
     css: ../lec.css
 ---
@@ -11,11 +12,10 @@ Output:
 ## 课程大纲 
 
 * R语言的特征(跳过)
-* R使用流程与工具箱
+* 工作界面与工作流程介绍
 * 演示:基础操作与数据分析流程
 * 使用github获得最新讲义
-* R入门方式与资料
-
+* 学习资料介绍
 
 # R 语言的特征
 
@@ -59,11 +59,6 @@ Output:
 - 网络分析
 - R主体资源[task views](http://mirrors.ustc.edu.cn/CRAN/web/views/)
 
-
-
-devtools::install_github('tidyverse/rlang’)
-devtools::install_github('thomasp85/tweenr')
-
 ## R 语言学习路径特征 {#myImageP50}
 
 - 学习曲线比较陡
@@ -96,10 +91,8 @@ knitr::include_graphics("../pic/R&Rstudio.png")
 ## RStudio的界面{#myImageP70}
 ![](../pic/Rstudio1.png)
 
-
 ## RStudio的界面介绍{#myImageP70}
 ![](../pic/Rstudio2.png)
-
 
 ## RStudio的界面设定{#myImageP50}
 ![](../pic/Rpane.png)
@@ -111,7 +104,6 @@ Chester Ismay
 [Getting used to R, RStudio, and R Markdown](https://bookdown.org/chesterismay/rbasics/)
 
 
-
 # 演示时间<br> 基础设定、安装包、<br>交互编程、创建文件、打开文件
 
 ## 安装
@@ -121,10 +113,10 @@ Chester Ismay
 - 扩展包的安装和加载
     - `install.packages("tidyverse")`
     - `library(tidyverse)`
+    - `if(!require(tidyverse)) install.packages("tidyverse")`
 - 安装扩展包相当于将某个工具买回来了；加载相当于带在身上了。
     - 查看帮助 `library(help="tidyverse")`
     
-  
 ## 一些默认设定
 
 改变默认语言(建议设定为英文)
@@ -140,6 +132,7 @@ Chester Ismay
 
 
 # 演示时间<br>通过Rscript<br>进行数据分析与结果呈现
+
 
 ## 演示内容
 
@@ -218,6 +211,8 @@ Chester Ismay
 ```{r message=FALSE}
 library(dplyr)
 library(ggplot2)
+library(gapminder)
+library(gganimate)
 ```
 
 ## 第二步: 导入数据
@@ -265,55 +260,32 @@ qplot(x = gdpPercap, y = lifeExp, color = continent, data = gap07)
 qplot(x = gdpPercap, y = lifeExp, color = continent, size = pop,data = gap07)
 ```
 
-## 创建动态图的命令（已失效）
-```{r eval= FALSE,message=FALSE}
-#library(dplyr)
-library(gganimate)
-library(ggplot2)
-library(readr)
-#install.packages("farver")
-#install.packages("tweenr")
-# install.packages('devtools')
-#devtools::install_github('thomasp85/gganimate')
-# gapminder <- read_tsv("gapminderDataFiveYear.tsv")
-gapminder <- read.csv("../data/gapminder.csv")
-gapminder <- subset(gapminder,gdpPercap<60000)
-gapminder_plot <- ggplot(gapminder) +
-  aes(x = gdpPercap, y = lifeExp, colour = continent, size = pop,
-      frame = year) +
-  geom_point(alpha = 0.6) +
-  theme(aspect.ratio=9/16) +theme_bw()
-gganimate(gapminder_plot, 
-          convert='gm convert',ani.width = 960, ani.height = 540,interval=1.5,
-          filename = "../pic/gapminder-gganimate.gif")
-
-```
-
-## 创建动态图的命令2
-```{r}
-library(gapminder)
-library(gganimate)
-ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+## 创建动态图
+```{r,eval=FALSE}
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = continent)) +
   geom_point(alpha = 0.7, show.legend = FALSE) +
-  scale_colour_manual(values = country_colors) +
   scale_size(range = c(2, 12)) +
   scale_x_log10() +
-  facet_wrap(~continent) +
-  # Here comes the gganimate specific bits
   labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
   transition_time(year) +
   ease_aes('linear')
 ```
 
-## 动态图结果 {#myImageP80}
-![](../pic/gapminder-gganimate.gif)
-
-```{r, eval= FALSE,echo=FALSE}
-knitr::include_graphics("../pic/gapminder-gganimate.gif")
+## 创建动态图 {#myImageP90}
+```{r, message=FALSE,echo = FALSE, fig.height=4}
+pgif <- ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = continent)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
+pgif
+#anim_save("../pic/gapminder.gif", pgif)
 ```
 
-# Github客户端的使用
 
+# Github客户端的使用
 
 ## 注册和安装客户端
 - 首先，注册GitHub账户并登陆 https://github.com/
@@ -323,36 +295,31 @@ knitr::include_graphics("../pic/gapminder-gganimate.gif")
 
 ![](../pic/downgithub.png)
 
-
-
-## 克隆一个版本库{#myImageP90}
+## 复制一个项目库到本地{#myImageP90}
 
 登录之后
 
 ![](../pic/clone.png)
 
 
-## 克隆一个版本库{#myImageP70}
+## 复制一个项目库到本地{#myImageP70}
 
 ![](../pic/clonep.png)
 
-
-## 克隆一个版本库{#myImageP70}
+## 复制一个项目库到本地{#myImageP70}
 
 ![](../pic/cloning.png)
 
 ![](../pic/viewlocal.png)
 
 
-## 更新版本库{#myImageP70}
+## 更新一个项目库{#myImageP70}
 
-将更新的讲义复制粘贴到另外的文件夹，添加笔记，进行修改。
-
-不直接改动复制下来的文件夹。下次点击更新即可获得最新的讲义。
-
-大家也可以创建自己的版本库，将自己更改后的讲义分享到github上。
-
-![](../pic/syn.png)
+更新项目库可以得到最新的讲义，这个文件夹里的东西作为只读即可。
+如果想在讲义资料中增加笔记，可将得到的讲义复制到别处在进行修改。
+大家也可以创建自己的项目库，将自己更改后的讲义分享到github上。
+未来作为项目成员与人合作完成项目时可用github进行版本控制和写作。
+![](../pic/gitsync.png)
 
 
 # R入门方法与资料
@@ -362,6 +329,7 @@ knitr::include_graphics("../pic/gapminder-gganimate.gif")
 - 适时做笔记,记下一些重点或技巧（在原文件中加入批注的形式）。
 - 学习时亲手键入代码，修改，理解其意义。
 - 坚持练习,尝试利用身边的数据进行应用分析。
+- 第一讲的课程指引中有很多资源链接
 
 ##本课程侧重教tidyerse
 
@@ -426,42 +394,3 @@ data.table 等高效包后面自学很快！
  `data()` | 	列出当前已加载包中所含的所有可用示例数据集
  `vignette()` | 	列出当前已安装包中所有可用的vignette文档
  `vignette("foo")` | 为主题foo显示指定的vignette文档
-
-## 参考资料
-
-+ 教材
-    - 《R语言实战》
-    - [《R for Data Science》]( http://r4ds.had.co.nz/)
-    - [《 An Introduction to Statistical and Data Sciences via R》](http://moderndive.com/)
-    - [《R for Data Science》习题答案](https://jrnold.github.io/e4qf/)
-
-+ 其他资料
-
-- tidydata简介: http://www.jstatsoft.org/v59/i10/paper
-
-- tidyverse的学习网址:https://www.tidyverse.org/learn/
-
-- Rmarkdown撰写的书籍:https://bookdown.org/home/
-
-
-##  R基础语法练习
-
-- 陈堰平4小时视频：http://www.xueqing.tv/course/64
-- 纽约大学R基础入门:https://guides.nyu.edu/r
-- 斯坦福R基础入门:https://sejdemyr.github.io/r-tutorials/statistics/
-- 尤达学院探索性数据分析入门课程（推荐）：https://classroom.udacity.com/courses/ud651
-
-##  交互测试练习网页
-- 初级课程 : https://www.datacamp.com/courses/free-introduction-to-r
-    + [1](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-1-intro-to-basics-1?ex=1)
-    + [2](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-2-vectors-2?ex=1)
-    + [4](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-4-factors-4?ex=1)
-    + [5](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-5-data-frames?ex=1)
-- 中级课程: https://www.datacamp.com/courses/intermediate-r
-    + [1](https://campus.datacamp.com/courses/intermediate-r/chapter-1-conditionals-and-control-flow?ex=1)
-    + [3](https://campus.datacamp.com/courses/intermediate-r/chapter-3-functions?ex=1)
-
-## 时间允许 
-
-[Data visualisation](file:///Users/liding/E/Bdata/liding17/book/r4ds/_book/data-visualisation.html)示例章的概要展示和作业说明
-
