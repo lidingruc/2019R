@@ -45,6 +45,7 @@ hist(prestige)
 pairs(cbind(prestige, income, education))
 
 # 两两散点图、拟合线、直方图。
+# 自己课后拆解理解命令过程
 pairs(cbind(prestige, income, education), 
       panel=function(x, y){
         points(x, y)
@@ -58,6 +59,7 @@ pairs(cbind(prestige, income, education),
 )
 
 # 定义为一个函数，方便以后使用
+# 将上面的命令封装成为一个函数，输入参数后可以多处使用
 scatmat <- function(...) { # user-defined function
   pairs(cbind(...),
         panel=function(x, y){
@@ -75,7 +77,6 @@ scatmat <- function(...) { # user-defined function
 scatmat(prestige, income, education)
 # car 包中已经写好的命令
 # library(car)
-
 scatterplotMatrix(~ income + education + prestige | type, data=Duncan)
 
 scatterplotMatrix(~ income + education + prestige | type, data=Duncan,regLine=FALSE, smooth=list(spread=FALSE))
@@ -99,7 +100,7 @@ detach("Duncan")
 
 
 #####################################
-# 第一个例子
+# 第二个例子
 # 加载后面的分析中需要用到的包
 library(tidyverse)
 library(gganimate)
@@ -148,6 +149,7 @@ ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = continent)) +
 ###################################################
 # 第三个例子
 # 利用R读入中文CGSS数据进行分析
+
 library(haven)
 setwd("/Users/liding/E/Bdata/2019R/l03workflow")
 cgss2013<-read_spss('../data/cgss2013.sav')
@@ -185,7 +187,7 @@ cgss2003[w] <- lapply(cgss2003[w],
                       function(x) as.numeric(as.character(x))
 )
 
-
+# 加载一个统计包
 library(memisc)
 options(digits=3)
 sex.tab <- genTable(percent(sex)~sitetype,data=cgss2003)
@@ -215,9 +217,69 @@ cgss2003<-read_dta('../data/cgss2003.dta') %>%
  sjlabelled::drop_labels()  %>% 
  sjmisc::to_label()  %>% 
  mutate_if(is.labelled, as.numeric)
+ #mutate_if(is.labelled, as.numeric(levels(.x))[.x])
+ #mutate_if(is.labelled, as.numeric(as.character(.)))
 
 cgss2003 %>% 
   genTable(percent(sex)~birth,data=.) %>% 
   ftable(.,row.vars=2)
 
 des(cgss2003)
+
+
+###################################################
+# 第四个例子- 批量读入一个文件夹中的文件
+#https://www.r-bloggers.com/merge-all-files-in-a-directory-using-r-into-a-single-dataframe/
+setwd("/Users/liding/Downloads/lianjia-beike-spider-master/data/ke/zufang/bj/20190920")
+
+file_list <- list.files()
+
+for (file in file_list){
+  
+  # if the merged dataset doesn't exist, create it
+  if (!exists("dataset")){
+    dataset <- read.csv(file, header=FALSE, sep=",")
+  }
+  # if the merged dataset does exist, append to it
+  if (exists("dataset")){
+    temp_dataset <-read.csv(file, header=FALSE, sep=",")
+    dataset<-rbind(dataset, temp_dataset)
+    rm(temp_dataset)
+  }
+  
+}
+
+
+# 方式2
+# https://stackoverflow.com/questions/24819433/reading-multiple-csv-files-from-a-folder-into-a-single-dataframe-in-r
+#https://stackoverflow.com/questions/9564489/opening-all-files-in-a-folder-and-applying-a-function
+
+setwd("/Users/liding/Downloads/lianjia-beike-spider-master/data/ke/zufang/bj/20190920")
+file_names <- dir() #where you have your files
+your_data_frame <- do.call(rbind,lapply(file_names,read.csv,header=FALSE))
+
+#方式3
+library(data.table)  
+files <- list.files(path = "/Users/liding/Downloads/lianjia-beike-spider-master/data/ke/zufang/bj/20190920",pattern = ".csv")
+temp <- lapply(files, fread, sep=",",header=FALSE)
+data <- rbindlist( temp )
+
+# 汇总各个小区的房价的价格
+datasum <- dataset %>% 
+  mutate(V6=str_replace(dataset$V6,"平米","")) %>% 
+  mutate(V6=as.numeric(V6)) %>% 
+  mutate(dj=as.numeric(V7)/V6) %>% 
+  group_by(V2,V3)%>%
+  summarise(pdj=mean(dj,na.rm=TRUE))
+
+
+# 读入数据库文件
+library(RODBC)
+setwd("/Users/liding/Documents/空间/data/")
+#channel<-odbcConnect("mydsn",uid="user",pwd="rply") 
+#channel<-odbcConnectAccess("TrainDatabase.mdb") # 不能用
+channel <- odbcConnect("train") 
+sqlTables(channel)
+df <-sqlFetch(channel, "TrainList")
+head(df)
+
