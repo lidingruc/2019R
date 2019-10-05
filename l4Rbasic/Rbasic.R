@@ -30,7 +30,7 @@ value2
 
 sqrt(2 ^ 3)
 sqrt(value1)
-sqrt(value2)
+sqrt(value2) # 错误
 help(sqrt)      
 ?help
 # 常见函数（参见r basic cheatsheet)
@@ -147,7 +147,7 @@ is.na(vec4)  # NA is still in the vector & only removed from the calculation
 
 
 # A. 设定 Working directory
-getwd()  # Print the current working directory
+getwd()  # 列印当前硬盘工作路径
 setwd("/Users/liding/E/Bdata/2019R/data")  # 设定硬盘工作路径, 
 dir() # 查看有哪些数据
 
@@ -174,8 +174,9 @@ search() 			  # Check pagkages currently loaded
 
 # 2.用 "readr" 包可以更快读入文本文件
 # Save dataset.csv as text file Dataset.txt and use "readr" to re-import
-read_table('Dataset.txt') # when your data are separated by one or more spaces
-read_delim('Dataset.txt', delim = '\t')
+#read_table('Dataset.txt') # when your data are separated by one or more spaces
+#read_delim('Dataset.txt', delim = '\t')
+library(readr)
 read_csv('Dataset.csv')  
 
 
@@ -205,7 +206,7 @@ write.csv(health, "IntrotoR.final.csv", row.names = FALSE)
 # write_dta(health, "my_stata.dta")
 
 # -------------------------------------------
-# -- III. 数据管理 Dataset Manipulation--
+# -- III. 用R基础命令进行数据管理 Dataset Manipulation--
 # -------------------------------------------  
 
 # A. 设定变量名 Column (Variable) names 
@@ -250,21 +251,21 @@ health$health_avg <- NULL
 # ---------------------------------------------------------------
 
 
-# D. Recode a Continuous Variable into a New Categorical Variable
+# D.连续变量分组  Recode a Continuous Variable into a New Categorical Variable
 summary(health$age) 			
 health$age_cat[health$age <= 32.5] <-"Group 1"
 health$age_cat[health$age > 32.5 & health$age <= 50] <- "Group 2"
 health$age_cat[health$age > 50] <-"Group 3"
 
 	
-# E. Recode function within the "car" package - From continuous to continuous
+# E.也可以使用car包中的recode函数 "car" 
 
 # install.packages("car")
 # library(car)
 # health$health22 <- recode(health$smoke, "1=5;2=4;3=3;4=2;5=1")
 # health$health55 <- recode(health$alcohol, "1=5;2=4;3=3;4=2;5=1")
 
-# F. Subsets of a Data Frame 
+# F. 筛选case和变量 Subsets of a Data Frame 
 
 # Subsets by specifying the column name:
 health[1:3, c("id", "gender", "smoke")]
@@ -281,24 +282,24 @@ sub2 <- subset(health, age > 40, select = c("age","smoke"))
 sub1 - sub2
 # ---------------------------------------------------------------
 # -- Exercise 4 
-# --- Using df2, create a subset called e4 which contains only the observations with a rate between 5 and 7 
+# --- Using df2, 创建数据 e4 仅含 rate between 5 and 7 的案例
 # ---------------------------------------------------------------
 
 # -------------------------------------------
-# -- V. Descriptive Statistics --
+# -- IV. 描述性分析  Descriptive Statistics --
 # ------------------------------------------- 
 
 summary(health) 
 summary(health$age)
 
-# A. Continuous variable : age 
+# A. 连续变量 Continuous variable : age 
 mean(health$age, na.rm = TRUE)
 median(health$age, na.rm = TRUE)
 sd(health$age, na.rm = TRUE)
 quantile(health$age, na.rm = TRUE)
 
 
-# B.  Categorical variable : gender 
+# B. 分类变量 Categorical variable : gender 
 table(health$gender)
 prop.table(table(health$gender))
 
@@ -308,23 +309,22 @@ table(health$gender, health$age_cat)
 margin.table(table(health$gender, health$age_cat), 1)
 margin.table(table(health$gender, health$age_cat), 2)
 
-# Question: how to find the row and column frequencies?
+# Question: how to find the row and column frequencies
 
 prop.table(margin.table(table(health$gender, health$age_cat), 1))
 prop.table(margin.table(table(health$gender, health$age_cat), 2))
 
-# C. Correlation 
+# C.相关 Correlation 
 cor(health[5:9])
 plot(health[5:9])
 
 # ---------------------------------------------------------------
 # -- Exercise 5 
-# --- Using df2, create an appropriate set of statistics for the rate variable 
+# --- 使用 df2, 描述 rate 变量
 # ---------------------------------------------------------------
 	
-
 # ----------------------
-# -- VI. Graphics --
+# -- V. 作图 Graphics --
 # ----------------------
 
 # Boxplot
@@ -359,49 +359,13 @@ plot(jitter(smoke) ~  jitter(food), pch = 20, col = rainbow(30), # change pch = 
 par(mfrow = c(1, 1)) #reset the matrix 
 
 
-# For more advanced graphs: "ggplot2" 
-install.packages("ggplot2")
-library("ggplot2")
-qplot(x = carat, y = price, color = cut, data = diamonds) 
-
 # ---------------------------------------------------------------
 # -- Exercise 6 
-# --- Using df2, create a histogram of rate with appropriate customizations
+# --- 使用df2的rate变量 创建histogram图，并做适当的修饰
 # ---------------------------------------------------------------
 
 
-# -------------------------------------------
-# -- VII. Hypothesis Testing --
-# ------------------------------------------- 
-
-# Chi-square Test
-chisq.test(health$gender, health$age_cat)
-summary(table(health$gender, health$age_cat))
-
-# t-test 
-# One sample t test
-t.test(health$health_sum, mu=3)
-# Independent 2 group t test where y is numeric and x is a binary factor
-t.test(health_sum ~ gender, data = health)
-# Paired t test
-t.test(health$food, health$smoke, paired = TRUE) 
-tResults <- t.test(health$food, health$health, paired = TRUE) 
-summary(tResults)
-tResults$statistic
-tResults['statistic']
-
-# Linear Regression Model
-lm_health <- lm(health_sum ~ age + gender, data = health)
-summary(lm_health)
-par(mfrow = c(2, 2))
-plot(lm_health)
-confint(lm_health)
-
-# ANOVA 
-aov_health <- aov(health_sum ~ state + gender, data = health)
-summary(aov_health)
-
-# Generate a random sample from specific distribution 
+# 随机函数 Generate a random sample from specific distribution 
 # n=100 from N(0,1) distribution
 rnorm(100)
 ?rnorm

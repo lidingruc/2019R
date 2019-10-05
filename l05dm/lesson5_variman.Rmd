@@ -20,7 +20,6 @@ output:
     - `summarise()` 汇总统计  |  `group_by()` 分组
     - `arrange()`: 案例排序 
 
-
 + 字符串处理
 + 日期处理
 
@@ -87,7 +86,7 @@ bike %>%
 
 ## 筛选个案`filter()` 
 
-选出Durham县且车龄 < 10 的案例
+选出Durham县且骑行者年龄 < 10 的案例
 
 ```{r}
 bike %>%
@@ -122,37 +121,26 @@ bike_n5 <- bike %>%
 dim(bike_n5)
 ```
 
-- `sample_frac()`: 随机选20%案例
+## tibble::glimpse
 ```{r}
-bike_perc20 <-bike %>%
-  sample_frac(0.2, replace = FALSE)
-dim(bike_perc20)
+bike %>%
+  glimpse()
 ```
 
+
+- `sample_n()`: 随机选5个案例
+```{r}
+bike_n5 <- bike %>%
+  sample_n(5, replace = FALSE)
+bike_n5[1:5]
+```
 
 ## 选择变量`select()`
 
 ```{r}
 bike %>%
-  select(Crash_Loc, Hit_Run) %>%
+  select(BikeAge_Gr, Bike_Sex) %>%
   table()
-```
-
-## 选择变量
-dplyr中的summarize默认summ该数据框中的变量
-```{r}
-out <- bike %>%
-summarize(
-    min = min(Bike_Age ,na.rm = TRUE),
-    q1 = quantile(Bike_Age ,0.25, na.rm = TRUE),
-    median = quantile(Bike_Age ,0.5, na.rm = TRUE),
-    q3 = quantile(Bike_Age,0.75, na.rm = TRUE),
-    max = max(Bike_Age,na.rm = TRUE),
-    mean = mean(Bike_Age ,na.rm = TRUE),
-    sd = sd(Bike_Age,na.rm = TRUE),
-    missing = sum(is.na(Bike_Age))
-  )
-knitr::kable(out)
 ```
 
 ## 筛选变量-删除 `select()`
@@ -173,7 +161,7 @@ bike %>%
 ```{r}
  bike %>%
   rename(Speed_Limit = Speed_Limi) %>%
-  select(starts_with("Speed_")) %>%
+  select(starts_with("Bike_")) %>%
   names()
 ```
 
@@ -182,7 +170,9 @@ bike %>%
 ```{r}
 bike <- bike %>%
   mutate(Bike_birth=Crash_Year - Bike_Age,
-         Drvr_birth=Crash_Year - Drvr_Age)
+         Drvr_birth=Crash_Year - Drvr_Age,
+         month = lubridate:: month(Crash_Date))
+bike%>% ggplot(aes(month)) +  geom_bar() 
 
 ```
 
@@ -209,19 +199,23 @@ bike <- bike %>%
                                    "60+"=c("60-69","70+")
                                    ))
 ```
-得到的位因子变量。如果原变量是labelled数值，请先转为因子，再recode。
+得到因子变量。如果原变量是labelled数值，请先转为因子，再recode。
 
 ##  recode连续变量为分类变量
-```{r}
+```{r,fig.height=2,fig.align = "center"}
+sjPlot::set_theme(base= theme_bw(),theme.font ='STSong',
+                  title.align='center')
 bike %>%
-   mutate(B_agegr=cut(Bike_Age,
-                    breaks=c(0,20,40,60,Inf),
-                    labels=c("youth","oldyouth","midage","elder"))) %>%
-   count(B_agegr)                   
+   mutate(B_agegr=cut(Bike_Age,breaks=c(0,20,40,60,Inf),
+          labels=c("youth","oldyouth","midage","elder")) %>% 
+           structure(label ="年龄组") ) %>% 
+sjPlot::sjplot(B_agegr,title = "骑行者年龄分组")
 ```
 ggplot2::cut_number可以等案例数(近似)分割
+
 findInterval也可以分组，左闭区间。cut默认是右闭
 
+[控制Rmd输出文件中图片的大小](https://sebastiansauer.github.io/figure_sizing_knitr/)
 
 ## 替换变量：因子变量
 
@@ -249,21 +243,22 @@ bike %>%summarise(mean=mean(Drvr_Age2,na.rm=TRUE))
 ```{r}
 bike <- bike %>%
              mutate(DrvrAge_Gr4=if_else(Drvr_Age<30,1,
-                                       if_else(Drvr_Age>=60,3,2)))
+                                if_else(Drvr_Age>=60,3,2)))
 #bike %>%count(DrvrAge_Gr4)
 #等价于
 bike <- bike %>%
-             mutate(DrvrAge_Gr4=replace(Drvr_Age,Drvr_Age<30,1)) %>%
-             mutate(DrvrAge_Gr4=replace(DrvrAge_Gr4,DrvrAge_Gr4>1&DrvrAge_Gr4<60,2)) %>%
-             mutate(DrvrAge_Gr4=replace(DrvrAge_Gr4,DrvrAge_Gr4>=60,3))
+     mutate(DrvrAge_Gr4=replace(Drvr_Age,Drvr_Age<30,1)) %>%
+     mutate(DrvrAge_Gr4=replace(DrvrAge_Gr4,Drvr_Age>=30&Drvr_Age<60,2)) %>%
+    mutate(DrvrAge_Gr4=replace(DrvrAge_Gr4,Drvr_Age>=60,3))
 
 bike %>%count(DrvrAge_Gr4)
 ```
-
+  
+  
 ## 替换变量：文本变量
 
 <div class="question">
-`BikeAge_gr` 中`10-Jun` or `15-Nov` 是什么意思?
+`BikeAge_Gr` 中`10-Jun` or `15-Nov` 是错误的
 </div>
 
 ```{r}
@@ -286,6 +281,21 @@ bike <- bike %>%
 ```
 
 
+## 分类汇总
+```{r}
+out <- bike %>%
+  group_by(Bike_Sex) %>% 
+summarize(
+    min = min(Bike_Age ,na.rm = TRUE),
+    max = max(Bike_Age,na.rm = TRUE),
+    mean = mean(Bike_Age ,na.rm = TRUE),
+    sd = sd(Bike_Age,na.rm = TRUE),
+    missing = sum(is.na(Bike_Age))
+  )
+knitr::kable(out)
+```
+
+
 ## 分类汇总与排序
 
 ```{r}
@@ -304,7 +314,7 @@ bike %>%
   top_n(n = 5)   #如果要降序可以加一句 arrange(desc(crash_count)) %>%
 ```
 
-# 字符串处理
+# 字符串处理详解
 
 ## 字符串：粘合：paste
 ```{r}
@@ -318,7 +328,9 @@ str_c(c("x", 1:3, "z"), collapse = ", ")
 
 ## 字符串：提取
 ```{r}
-dna_ex <- "ACAAAGATGCCATTGTCCCCCGGCCTCCTGCTGCTGCTGCTCTCCGGGGCCAACGGCCACCGCTGCCCTGCCCCTGGAGGGTGGCCCCACCGGCCGAGACAGCGAGCATATG"
+dna_ex <- "ACAAAGATGCCATTGTCCCCCGGCCTCCTGCTGCTGCT///
+GCTCTCCGGGGCCAACGGCCACCGCTGCCCTGCCCCTGGAGGGTGGCCCC///
+ACCGGCCGAGACAGCGAGCATATG"
 
 # 字符串长度
 length(dna_ex)
@@ -454,7 +466,7 @@ str_view(fruit, "(..)\\1", match = TRUE)  # 找出所有重复字符对
 ## 例子: 
 ```{r}
 # stringr::words 数据
-# Find all words containing at least one vowel（元音）, and negate
+# containing at least one vowel（元音）, and negate
 no_vowels_1 <- !str_detect(words, "[aeiou]")
 # Find all words consisting only of consonants (辅音 non-vowels)
 no_vowels_2 <- str_detect(words, "^[^aeiou]+$")
@@ -513,7 +525,7 @@ string2
 
 
 
-# 日期的处理
+# 日期与时间变量详解
 
 ## 日期函数
 ```{r}
@@ -567,47 +579,53 @@ mdy_hm("01/31/2017 08:01")
 ymd(20170131, tz = "UTC")
 ```
 
-## 组合成分为时间
+## 提取时间成分和组合时间
 ```{r}
-library(nycflights13)
-flights_dt <- flights %>% 
-   filter(!is.na(dep_time), !is.na(arr_time)) %>% 
-  mutate(
-    departure = make_datetime(year, month, day, hour, minute),
-    dep_time =  make_datetime(year, month, day, dep_time %/% 100, dep_time %% 100))
-flights_dt  %>% 
-  select(year, month, day, hour, minute,departure,dep_time)
+crash_dt <- bike%>%
+  mutate(Crash_Month = month(Crash_Date),
+         Crash_Day = day(Crash_Date),
+         Crash_Min = minute(Crash_Time)) %>% 
+  mutate(crash_time =  make_datetime(Crash_Year,
+                                     Crash_Month, 
+                                     Crash_Day,
+                                     Crash_Hour,
+                                     Crash_Min))
+
 ```
 
-## 例子:一天内每十分钟航班数
+## 例子:2007年10月份内每天的事故数
 ```{r}
-flights_dt %>% 
-  filter(dep_time < ymd(20130102)) %>% 
-  ggplot(aes(dep_time)) + 
-  geom_freqpoly(binwidth = 600) # 600 s = 10 minutes
+crash_dt %>% 
+  filter(crash_time <= ymd(20071030),
+         crash_time >= ymd(20071001)) %>% 
+  ggplot(aes(crash_time))+geom_freqpoly(binwidth = 86400) # 600 s = 10 minutes
 ```
 
 ## 获取成分
+
+<div style="float: left;width: 90%;text-align: left;">
 ```{r}
 datetime <- ymd_hms("2016-07-08 12:34:56")
-
-year(datetime)
-month(datetime)
-mday(datetime)
-
-yday(datetime)
-wday(datetime)
-
+year(datetime);month(datetime);mday(datetime);yday(datetime);wday(datetime)
 month(datetime, label = TRUE)
-wday(datetime, label = TRUE, abbr = FALSE)
+wday(datetime, label = TRUE, 
+     abbr = FALSE)
+```
+</div>
+
+
+## 例子：一周七天每天事故数
+```{r}
+crash_dt %>% 
+  mutate(wday = wday(crash_time, label = TRUE)) %>% 
+  ggplot(aes(x = wday)) + geom_bar()
 ```
 
-## 例子：一个星期每天航班数
+## 例子：月内每天事故数
 ```{r}
-flights_dt %>% 
-  mutate(wday = wday(dep_time, label = TRUE)) %>% 
-  ggplot(aes(x = wday)) +
-    geom_bar()
+crash_dt %>% 
+  mutate(month = month(crash_time, label = TRUE)) %>% 
+  ggplot(aes(x = month)) + geom_bar()
 ```
 
 ## 修改时间成分
@@ -627,10 +645,10 @@ ymd("2015-02-01") %>%
 ## 例子：将日期部分统一以关注日内时间分布
 
 ```{r}
-flights_dt %>% 
-  mutate(dep_hour = update(dep_time, yday = 1)) %>% 
-  ggplot(aes(dep_hour)) +
-    geom_freqpoly(binwidth = 300) ## 每5分钟
+crash_dt %>% 
+  filter(Crash_Year==2007) %>% 
+  mutate(crash_hour = update(crash_time,yday = 1)) %>%
+  ggplot(aes(crash_hour)) + geom_freqpoly(binwidth = 300) ## 每5分钟
 ```
 
 ##　日期函数

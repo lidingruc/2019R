@@ -68,10 +68,9 @@ http://r4ds.had.co.nz/transform.html
 
 课堂演示：R基础入门：R中的对象、函数、控制语句与数据框操作
 
-提交作业3：将 http://r4ds.had.co.nz/transform.html  中的命令转移到R scripts文件中，并完成其中的练习题。
+提交作业3：研究学习https://github.com/lidingruc/2019R/blob/master/l4Rbasic/Rbasic.R 完成其中的练习题。
 
-
-## 第5讲、备砖：变量处理强化
+## 第5讲、备砖：变量处理
 
 课前预习：
 
@@ -84,7 +83,7 @@ http://r4ds.had.co.nz/strings.html
 http://r4ds.had.co.nz/dates-and-times.html
 
 
-提交作业4：将 http://moderndive.com/5-wrangling.html 中的命令转移到R scripts文件中，并完成其中的练习题。
+提交作业4：将 https://github.com/moderndive/ModernDive_book/blob/master/03-wrangling.Rmd 中的命令转移到R scripts文件中，并完成其中的练习题。
 
 
 ## 第6讲、备砖：数据管理

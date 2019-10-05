@@ -1,7 +1,7 @@
 ---
-title: "数据科学与社会研究 <br> 第四讲、夯基：关于R的基础"
+title: "数据科学与社会研究 <br> 第四讲、夯基：R的基础知识"
 author: "李丁 社会与人口学院"
-date: "2019年9月26日"
+date: "2019年10月"
 output:
   ioslides_presentation:
     highlight: pygments
@@ -9,10 +9,9 @@ output:
     css: ../lec.css
 ---
 
-## R语法基础入门 
-Ｒ的基础知识
+## R的基础知识
 
-* R中的数据对象：
+* 数据对象：
   -向量
   -矩阵
   -数据框
@@ -112,7 +111,7 @@ as.logical(x2)
 ## 基本对象：矩阵
 ```{r eval=FALSE}
 vector <- 1:12  
-is.matrix(vector)  # 向量是矩阵
+is.matrix(vector)  
 # 方法1
 my_mat <- matrix(vector,nrow=3,ncol=4,byrow=F) 
 dim(my_mat)
@@ -120,6 +119,7 @@ dim(my_mat)
 dim(vector) <- c(3,4)
 print(vector)
 vector[2,2] <- "A"  # 元素全部变成了字符;矩阵内元素模式相同。
+vector
 as.vector(vector)  # 转为向量，逐列 c(vector) 
 # 行列名
 rownames(my_mat)<-c("row1","row2","row3")
@@ -159,6 +159,7 @@ city <- c('A','B','C','D')
 temp = c(27,29,23,14)
 pop = c(300,200,150,2300)
 data <- data.frame(city,temp,pop)
+# data <- data.frame(city,temp,pop,stringsAsFactors=F) 
 str(data)
 ```
 
@@ -172,11 +173,6 @@ data$city
 
 ```
 
-## 基本对象：数据框
-```{r}
-data <- data.frame(city,temp,pop,stringsAsFactors=F) # 字符不转换因子
-str(data)
-```
 
 ## 基本对象：数据框
 了解一个数据框的基本属性。
@@ -186,7 +182,7 @@ summary(data)
 dim(data)
 head(data,2)
 tail(data)
-str(data)
+names(data) # 思考题：如何修改变量名呢？作业题里。
 ```
 summary函数负责对每列进行统计，dim得到维度，head得到前六行数据，而str则返回整个数据的结构。
 
@@ -198,7 +194,7 @@ order(data$temp)
 data[order(data$temp),]
 data[order(data$temp,decreasing=T),][1:2, ]
 median(data$temp)
-data<20
+data < 20
 ```
 
 ```{r}
@@ -206,7 +202,6 @@ data[data$temp>28, ]
 ave <- mean(data$temp)
 data[data$temp>ave, ]
 ```
-
 数据框的更多介绍在后面会介绍！
 
 ## 列表
@@ -232,10 +227,11 @@ length(data_list)
 data_list[[2]]
 ```
 
+# 工作空间
+
 ## 工作空间
 
-工作空间
-
+工作空间：Rstudio中分为三类：Data、values、Functions
 - `ls()`  列出当前工作空间中的对象/变量
 - `rm(objectlist)`  移除（删除）一个或多个对象
 - `save.image("myfile")`	保存工作空间到文件myfile中（默认后缀 .RData）
@@ -275,10 +271,10 @@ exp(c(1,2,3,4))
 ```
 `exp`是函数名，括号中是参数。
 
-## 常见函数
+## 常见数学函数
 ![](../pic/mfun.png)
 
-## 随机函数
+## 常见随机函数
 通过帮助文件自己学习，理解这些函数。比方说pnorm(1.96)
 ![](../pic/dis.png)
 
@@ -301,6 +297,7 @@ atmp <- 1:6;dim(atmp) <- c(3,2)
 sapply(atmp,myfunc)
 sapply(3:5, seq)
 ```
+# 条件语句
 
 ## 条件语句
 ![](../pic/iffun.png)
@@ -331,11 +328,11 @@ if (num %% 2 != 0) {
 ```{r}
 num <- 10
 if (num %% 3 == 1)  {
-  cat('mode is',1)
+  cat(num,'/ 3 mode is',1)
 } else if (num %% 3 == 2) {
-  cat('mode is',2)
+  cat(num,'/ 3 mode is',2)
 } else {
-  cat('mode is',0)
+  cat(num,'/ 3 mode is',0)
 }
 ```
 
@@ -374,7 +371,9 @@ NULL用来删除变量或变量中的元素，例如删除data_list中的data元
 data_list$data <- NULL
 ```
 
-## 循环
+# 循环
+
+## 循环语句类型
 
 循环语句可以重复运行某一段代码；for循环和while循环。
 ![](../pic/loop.png)
@@ -444,10 +443,16 @@ repeat  {
 }
 ```
 
-## 课后强化练习
+# 课后安排
 
+##强化练习
 基础部分
-认真研读[R语言基础小抄](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf)，并将相关的代码输入到R代码文件中。
+1、完成课后作业
+
+2、务必认真研读[R语言基础小抄](http://github.com/rstudio/cheatsheets/raw/master/base-r.pdf)。
+
+尝试将相关的代码输入到R代码文件中，研制自己的入门介绍实例用于向人介绍R语言基础。
+
 - [Chapter 1 Intro to basics](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-1-intro-to-basics-1?ex=1)
 - [Chapter 2 Vectors](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-2-vectors-2?ex=1)
 - [Chapter 4 Factors](https://campus.datacamp.com/courses/free-introduction-to-r/chapter-4-factors-4?ex=1)
@@ -459,5 +464,3 @@ repeat  {
 - [Chapter 3 Functions](https://campus.datacamp.com/courses/intermediate-r/chapter-3-functions?ex=1)
 
 [更多小抄](https://www.rstudio.com/resources/cheatsheets/)
-
-
