@@ -5,7 +5,158 @@
 # 中国人民大学社会与人口学院
 
 ###################################################
+
+# -------------------------------------------
+# -- I. 界面介绍  窗口分菜单简单介绍(3-5）分钟 
+# 窗口布局
+# 如何安装包
+# 新建Rscrip文件开始介绍
+# -------------------------------------------
+  
+# ----------------------
+# -- II. R基本概念与数据元素 --
+# ----------------------
+
+1  # Recognizes 1 as a vector with only a single element
+1 + 1
+a
+
+
+# A. 赋值语句（Assignments）
+  
+add <- 1 + 2    
+add  # By just calling the name, you can see the value
+add = 1 + 2
+
+# B. 对象（Objects）: <object name> <- <information in R>   
+  
+value1 <- 1 + 2
+value1        
+
+value2 <- "blue"
+value2        
+
+
+# C. 函数（Functions） 
+  
+sqrt(2 ^ 3)
+sqrt(value1)
+sqrt(value2)
+help(sqrt)      
+?help
+# 常见函数（参见r basic cheatsheet)
+    
+# D. 数据类型（Data Types）
+
+# 1. 向量（Vectors）
+vec1 <- c(4.6, 4.8, 5.2, 6.3, 6.8, 7.1, 7.2, 7.4, 7.5, 8.6)    
+vec2 <- c('BJ', 'SH', 'SZ', 'TJ', 'WH', 'CS', 'JN', 'CQ', 'CD', 'ZZ')
+?c  # Combines values into a vector or a list
+
+# 向量元素（Element of  Vectors） : <vector>[<vector of indices>]
+vec1[7]      
+vec2[1:3]
+vec2[c(1,3)]
+
+# 向量长度（Length of the Vectors）        
+length(vec1)
+length(vec2)          
+
+
+# 向量类型（Class of Vectors ）       
+class(vec1)
+class(vec2)
+
+# 用于向量的函数（Functions for a Numeric Vector）
+mean(vec1)
+var(vec1)
+sum(vec1)
+max(vec1)
+# 常见函数（参见r basic cheatsheet)
+
+# Summaries of Vectors
+summary(vec1)
+summary(vec2)
+summary(as.factor(vec2))  # If you classify obj2 as a factor variable, you can obtain frequencies
+?as.factor()
+
+as.character(vec1)
+as.factor(vec1)
+
+
+# 向量运算（Vector Operations）
+vec1+1
+vec1*5
+rep(1, times = 10)   
+rep(vec1, times = 5) 
+round(vec1/3, 2)
+floor(vec1)
+
+# 合并（Combine Two Vectors） Length = 20 
+vec3 <- c(vec1, vec2)   
+length(vec3)
+  
+# ------------------------------------------------------------------------------------------
+# -- 练习 1 
+# --- 创建向量 v1 为取值1到8的重复5次的向量 
+# ------------------------------------------------------------------------------------------  
+
+
+# 2. 矩阵（Matrix）
+m1 <- cbind(vec1, vec2)  # try cbind(vec1, vec3) 
+m1  # 与vec3有啥不同?
+class(m1)  #所有元素的类型相同(numeric/character...), 
+dim(m1)
+
+# 通过[]Brackets引用矩阵中的元素 : <matrix>[<row indices>,<column indices>]
+m1[, 1]
+m1[2, ]
+      
+
+# 3. 数据框（Data Frame） 
+df1 <- data.frame(vec1, vec2)
+class(df1)      
+str(df1) # compare with Global environment in Rstudio
+
+# 通过[]引用: <dataframe>[<row indices>, <column indices>]
+df1[, 1] 
+df1[, 2]
+
+df1[, 'vec1']
+
+# 通过变量名引用列（columns ，variables) via names 
+df1$vec1
+df1$vec2
+  
+# --------------------------------------------------------------------------------------------------
+# -- 练习 2 
+# --- 创建一个数据框 df2, 在上述df1基础上增加了第三个变量。
+# --------------------------------------------------------------------------------------------------
+idnum <- 1:10
+
+
+# 4. 列表（Lists）
+l1 <- list(idnum, df1, 2) 
+class(l1)
+
+# Referencing Components
+l1[[1]] 
+l1[[2]] 
+
+class(l1[[1]])
+class(l1[1])
+
+# E. 缺失值（Missing Data）
+vec4 <- c(4.6, 4.8, 5.2, 6.3, 6.8, 7.1, 7.2, 7.4, 7.5, 8.6, NA)
+sum(vec4)  # Why can't the sum be calculated?
+is.na(vec4) 
+sum(vec4, na.rm = TRUE)
+is.na(vec4)  # NA is still in the vector & only removed from the calculation
+
+
+###################################################
 # 第一个例子
+install.packages("car")
 data(package="car")
 library(car)
 data(Duncan)
@@ -21,10 +172,12 @@ data(Duncan)
 
 ?Duncan # 查看包中有关数据的背景信息
 Duncan
-head(Duncan)
+head(Duncan,10)
+tail(Duncan,6)
 names(Duncan)
 summary(Duncan)  # generic summary function
 summary(Duncan$prestige)
+summary(Duncan[4])
 prestige # error! 属于个数据集中 Duncan$prestige
 
 ##########################
@@ -79,9 +232,9 @@ scatmat(prestige, income, education)
 # library(car)
 scatterplotMatrix(~ income + education + prestige | type, data=Duncan)
 
-scatterplotMatrix(~ income + education + prestige | type, data=Duncan,regLine=FALSE, smooth=list(spread=FALSE))
+car::scatterplotMatrix(~ income + education + prestige | type, data=Duncan,regLine=FALSE, smooth=list(spread=FALSE))
 
-scatterplotMatrix(~ income + education + prestige,
+car::scatterplotMatrix(~ income + education + prestige,
                   data=Duncan, id=TRUE, smooth=list(method=gamLine))
 
 
@@ -92,7 +245,7 @@ identify(education, income, row.names(Duncan)) # must exit from identify mode!
 row.names(Duncan)[c(6, 16, 27)]
 
 # fitting a regression
-(duncan.model <- lm(prestige ~ income + education))
+(duncan.model <-  lm(prestige ~ income + education))
 
 summary(duncan.model)  # again, summary generic
 # 科学计数设定 options(scipen=10)

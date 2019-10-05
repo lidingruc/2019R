@@ -215,6 +215,15 @@ library(gapminder)
 library(gganimate)
 ```
 
+
+## 插入另一段描述
+  可以这样做
+```{r}
+library(car)
+summary(Duncan)
+```
+
+
 ## 第二步: 导入数据
 
 ```{r}
