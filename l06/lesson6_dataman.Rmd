@@ -1,0 +1,496 @@
+---
+title: "备砖：<br> 用R进行数据管理2"
+author: "李丁"
+date: "2019年"
+output:
+  ioslides_presentation:
+    highlight: pygments
+    widescreen: yes
+    css: ../lec.css
+---
+
+## 内容提纲
+
+- 数据读入 Data import
+    + haven导入SPSS、stata数据
+    + foreign包导入SPSS、stata数据
+    + 读入Excel文件
+    + 读入数据库数据
+    
+- 数据整理 Tidy data
+    + 理想的数据结构
+    + 宽数据变长数据:gather
+    + 长数据变宽数据:spread
+    + 数据的合并:merge & join
+
+## 用haven包读入其他格式数据
+- From text: base —— read.csv,read.table ……
+
+- From text: readr —— read_csv,read_table2,read_delim 
+
+-From Excel: readxl —— read_excel
+
+-From stata spss sas: haven 
+
+```{r,eval= FALSE}
+library(haven)
+data1 <- read_sav("路径+文件名.sav")
+data2 <- read_stata("路径+文件名.dta",encoding ="GB2312")
+data3 <- read_sas("路径+文件名.sas7bdat")
+```
+
+## haven读入stata数据{#myImageP50}
+
+Stata13之前版本可能需要设定，stata14后版本通常不用，除非数据文件中的encoding信息设定错误。用对话框导入中文数据时，预览为乱码则可尝试设定encoding=“gb2312”，encoding=“gb18030”或者encoding=“gbk”。
+
+![](../pic/readcgss.png)
+
+```{r,eval = FALSE}
+library(haven)
+cgss2013 <- read_dta("D://83776//微信文件//WeChat Files//wxid_ewsus9dcgu7s22//FileStorage//File//2019-10//cgss2013.dta",encoding = "gb18030")
+```
+
+## haven读入SPSS数据:CGSS{#myImageP70}
+一些中文SPSS数据的编码不是utf-8,haven包通过设定encoding，获得正确的数据。
+
+![](../pic/cgssspss2.png) 
+
+## haven读入SPSS&Stata数据后的标签
+变量标签在字段的label属性中；取值标签在labels属性中。
+
+```{r}
+library(haven)
+cgss2013 <- read_sav("cgss2013.sav")  #
+str(cgss2013$s5a)
+attr(cgss2013$s5a,"label")
+attr(cgss2013$s5a,"labaels")
+attr(attr(cgss2013$s5a,"labels"),"names")[3]
+```
+
+## 普通命令不直接调用标签信息{#myImageP50}
+
+<div style="float: left;width: 40%;text-align: left;">
+```{r}
+library(tidyverse)
+cgss2013 %>%  count(s5a)
+```
+</div>
+
+
+<div style="float: right;width: 10%;text-align:right;">
+
+</div>
+<div style="float: left;width: 50%;text-align: left;">
+```{r}
+ggplot(cgss2013, aes(x=s5a)) +
+  geom_bar() + 
+  scale_x_discrete(drop=TRUE)
+```
+</div>
+
+##使用[(strange jack)](http://www.strengejacke.de/sjPlot/)的包
+
+jPlot、sjmisc、sjstats等包使用标签信息
+sjlabelled  用来处理标签信息
+
+```{r , warning = FALSE,message= FALSE}
+if(!require(sjmisc)) install.packages("sjmisc")
+if(!require(sjPlot)) install.packages("sjPlot")
+if(!require(sjlabelled)) install.packages("sjlabelled")
+frq(cgss2013$s5a)
+```
+
+## 使用label信息:使用sjPlot包分析-图
+```{r,fig.height= 4}
+sjPlot::set_theme(theme.font ='SimSun' ) # STHeiti也可
+cgss2013  %>% select(s5a) %>%  sjplot(fun="grpfrq")
+```
+
+[更多介绍1](https://strengejacke.wordpress.com/2016/11/14/pipe-friendly-workflow-with-sjplot-sjmisc-and-sjstats-part-1-rstats-tidyverse/);[更多介绍2](https://strengejacke.wordpress.com/sjplot-r-package/);[MAC电脑Rstudio作图中文乱码的解决方案](http://note.youdao.com/noteshare?id=9367dbf7c91458d07f54e256b6c2271d)
+
+## 字体信息
+
+<div style="float: right;width: 45%;text-align:right;">
+**mac**
+
+华文细黑：STHeiti Light [STXihei]
+
+华文黑体：STHeiti
+
+华文楷体：STKaiti
+
+华文宋体：STSong
+
+华文仿宋：STFangsong
+
+俪黑 Pro：LiHei Pro Medium
+
+俪宋 Pro：LiSong Pro Light
+
+标楷体：BiauKai
+
+苹果俪中黑：Apple LiGothic Medium
+
+苹果俪细宋：Apple LiSung Light
+
+</div>
+
+<div style="float: left;width: 45%;text-align:right;">
+**windows**
+
+新细明体：PMingLiU
+
+细明体：MingLiU
+
+标楷体：DFKai-SB
+
+黑体：SimHei
+
+宋体：SimSun
+
+新宋体：NSimSun
+
+仿宋：FangSong
+
+楷体：KaiTi
+
+仿宋_GB2312：FangSong_GB2312
+
+楷体_GB2312：KaiTi_GB2312
+
+微软正黑体：Microsoft JhengHei
+
+微软雅黑体：Microsoft YaHei
+
+</div>
+
+常见中文字体名：http://www.cnblogs.com/code/articles/2381967.html
+
+## 将带标签的分类变量变为因子
+
+灵活性会更大一些
+
+有多重方式，如使用haven包as_factor()命令将labelled列变成因子。
+```{r,fig.height=2.5}
+cgss2013  %>%
+  filter(s5a>0) %>% select(s5a) %>% 
+  haven::as_factor() %>% droplevels() %>% 
+  ggplot(aes(x=s5a)) +geom_bar() + 
+  scale_x_discrete(drop=TRUE)
+```
+
+## 将带标签的分类变量变为因子
+
+用SJ[(strange jack)](http://www.strengejacke.de/sjPlot/)的`sjmisc::to_label()`将所有带标签的变量转为因子。可同时将用户缺失值替换为NA(drop.na=TRUE)，删除未用到的取值标签(drop.levels=TRUE)。
+
+```{r,fig.height=2.5}
+cgss2013  %>%
+  select(s5a) %>% 
+  sjmisc::to_label(drop.levels=TRUE) %>% 
+  sjplot(fun="frq",axis.title="调查地类型")
+```
+
+## 带缺失值标签的连续变量
+
+有些*连续变量*带有缺失值标签，如果批量处理也会变成因子。
+因此，最好删除缺失值标签[若缺失类型信息有用请另存到其他变量]。sjlabelled和haven中zap_labels可批量删除标签并将标签对应取值替换为NA。
+
+```{r,fig.height=2.5,message=FALSE}
+cgss2013  %>%
+  select(a3a) %>% 
+  sjlabelled::zap_labels() %>%  # 如果没有这一句是啥效果
+  qplot(x=a3a,data=.,binwidth=5)
+```
+
+## R处理Stata等带标签中文数据的建议操作
+
+1、将用户自定义缺失值替换为NA（若需用到请先创建新变量存储）
+2、删除用户自定义缺失值标签(-1,-2,-3,99996，-99999之类的)
+3、将带取值标签的变量变为因子变量
+```{r,warnings=FALSE}
+cgss2013<-read_dta('../data/cgss2013.dta',encoding="gb18030") %>% 
+  mutate_all(funs(replace(., .==-1|.==-2|.==-3, NA))) %>%  # 替换缺失值
+ sjlabelled::drop_labels()  %>%  # 删除未用到的取值标签，含自定义缺失值的标签
+ sjmisc::to_label()  %>%  # 剩余的带标签的变量变为因子变量
+ mutate_if(is.labelled, as.numeric) # 已经删除了缺失值标签的数字变量变为数字
+```
+
+## 分析
+```{r,fig.height=2.5,message=FALSE}
+cgss2013  %>%
+  qplot(x=a3a,data=.,binwidth=5)
+```
+
+## foreign包读入数据{#myImageP90}
+foreign包也可读入,其read.spss可设定reencode等参数。
+```{r,warning =FALSE }
+cgss <- foreign::read.spss("../data/cgss2013.sav",
+                           to.data.frame=TRUE,max.value.labels=50)
+table(cgss$a2)
+```
+
+## foreign包处理数据标签
+变量标签存在 variable.labels属性当中；取值标签存在label.table属性中。<br>默认将带标签的变量转化为factor类型。部分取值没有label,会自动添加。
+
+```{r,warning= FALSE}
+attr(cgss, "variable.labels")[1:6]
+attr(cgss, "label.table")[6]
+str(cgss$sitetype)
+```
+
+## foreign读入数据:删除不必要的因子levels
+```{r,warning=FALSE,fig.height=2.5}
+cgss[cgss=="无填答/不回答"] <- NA
+cgss[cgss=="不知道/说不清"] <- NA
+cgss[cgss=="不适合"] <- NA
+cgss[cgss=="不适用"] <- NA
+cgss <- droplevels(cgss)
+ggplot(data=cgss,aes(x=s5a))+geom_bar() +theme(text=element_text(family="STKaiti"))
+#SimSun、SimHei 、STHeiti、 STXihei 
+```
+
+##  注意: Strings (characters) 和 factors的差异
+
+- R默认会将字符当做因子变量处理（统计渊源）
+- 有时候会带来麻烦
+- 使用 `stringsAsFactors = FALSE` 修改默认设定
++ 可以将其他数据导出为csv文件(注意编码)然后读入R 
+
+
+# 数据整理
+
+## Tidy data {#myImageP70}
+
+1. 每个变量构成一列
+2. 每个案例构成一行
+3. 每个取值都有自己的单元格
+4. 每类观察对象自成一个表
+<div class="columns-1">
+![](../pic/tidy1.png)
+</div>
+## 比较下面几个数据
+
+<div class="question">
+下面哪种数据最好用？
+</div>
+
+<div class="columns-2">
+
+```{r}
+table1
+```
+
+<br><br><br><br>
+
+```{r}
+table2
+```
+</div>
+
+## 比较下面几个数据
+
+<div class="columns-2">
+
+```{r}
+table3
+```
+
+<br><br><br><br>
+
+```{r}
+table4a
+table4b
+```
+</div>
+
+##  使用示例：创建新变量
+
+```{r}
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+```
+
+## 使用示例：汇总
+```{r}
+table1 %>% 
+  count(year, wt = cases)
+```
+
+## 使用示例：作图
+```{r}
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+## 宽数据变长数据{#myImageP90}
+
+![](../pic/tidy2.png)
+
+## 宽数据变长数据
+使用`gather`命令
+
+原变量名列表归为新变量key=,取值归入新变量value=
+
+```{r}
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+## 宽数据变长数据
+```{r}
+table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+
+## 长数据变宽数据
+
+```{r}
+table2
+```
+
+##  长数据变宽数据
+使用`spread`命令，变量名key来自什么，取值value来自于什么
+```{r}
+spread(table2, key = type, value = count)
+```
+
+## 长数据变宽数据{#myImageP90}
+
+![](../pic/tidy3.png)
+
+
+## reshape 命令：Make a Panel Dataset
+```{r}
+# Make a Panel Dataset
+health <- data.frame(id = rep(1:10, each = 4, len = 40),
+                     trial = rep(c(1:4), 10), 
+                     score = rnorm(40, 3, .75))
+health[1:10, ]
+```
+
+## reshape 命令：Long --> Wide
+```{r}
+# Reshape : Long --> Wide
+health_wide <- reshape(health, v.names = "score", idvar = "id", 
+                       timevar = "trial", direction = "wide") 
+health_wide[1:5, ]
+head(reshape(health_wide)) # to go back to long format
+```
+
+## reshape 命令：Wide --> Long
+```{r}
+# Reshape : Wide --> Long
+health_long <- reshape(health_wide, idvar = "id", direction = "long")         
+health_long[1:15, ] 
+```
+
+## tidy方式：变宽(练习)
+```{r,eval=FALSE}
+spread(health, key = ?, value = ?) # key is the identifier
+```
+
+## tidy方式：变长(练习)
+```{r,eval=FALSE}
+# can also reference by column number(2:5)
+gather(health_wide, key = ?, value = ?, score.1:score.4) 
+```
+
+## 其他数据整理命令
+数值分裂：`seperate`
+
+数值合并：`unite`
+
+具体参考：http://r4ds.had.co.nz/tidy-data.html#separating-and-uniting
+
+去年期末考试用到了这个命令。请认真研究。
+
+
+## 数据变形中的缺失值问题
+长宽变换得到的数据为齐整的数据，如果原始数据中某些记录或者变量缺乏取值怎么办呢？
+
+- 显性缺失 Explicitly, i.e. flagged with NA.
+- 隐性缺失 Implicitly, i.e. simply not present in the data.
+
+具体参考：http://r4ds.had.co.nz/tidy-data.html#missing-values-3
+
+# 数据合并
+
+## 数据合并:创建示例数据
+```{r}
+# 创建两个数据
+data1 <- data.frame(id = rep(1:5, 3), year = rep(2000:2002, each = 5), 
+                     group = sample(c("A", "B", "C"), 15, replace = TRUE))
+
+data2 <- data.frame(id = rep(1:5, each = 4), year = rep(2000:2003, 5),
+                    score = rnorm(20, 50, 15)) 
+
+```
+<div class=columns-2>
+```{r}
+head(data1)
+```
+
+
+```{r}
+head(data2)
+```
+
+</div>
+
+## 数据合并:base包merge命令
+```{r}
+# Merge them by id & year, 1:1 merge
+data_merge <- merge(data1, data2, by = c("id", "year")) 
+data_merge
+
+```
+## 数据合并:base包merge命令
+```{r}
+# 只有一个数据集中有则合并数据集中有.
+# left-merge: x.all=TRUE. right-merge:y.all=TRUE
+data_merge <- merge(data1, data2, by = c("id", "year"), all = TRUE) 
+data_merge
+
+```
+
+扩展阅读: "http://guides.nyu.edu/quant/merge"
+
+## 两个数据合并:dplyr包命令
+```{r}
+inner_merge <- data1 %>% inner_join(data2, by = c("id", "year")) %>% arrange(id)
+outer_merge <- data1 %>% full_join(data2, by = c("id", "year")) %>% arrange(id)
+```
+<div class=columns-2>
+```{r}
+head(inner_merge)
+```
+
+
+```{r}
+head(outer_merge)
+```
+
+</div>
+
+## inner join{#myImageP90}
+
+![](../pic/join-inner.png)
+
+## outer join{#myImageP30}
+
+![](../pic/join-outer.png)
+
+## 两个数据合并:前面的示例数据
+
+```{r}
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+left_join(tidy4a, tidy4b)
+```
+
+
+
