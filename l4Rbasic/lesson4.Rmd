@@ -191,7 +191,7 @@ summary函数负责对每列进行统计，dim得到维度，head得到前六行
 数据框排序、计算
 ```{r eval=FALSE}
 order(data$temp)
-data[order(data$temp),]
+data <- data[order(data$temp),c(1,3)]
 data[order(data$temp,decreasing=T),][1:2, ]
 median(data$temp)
 data < 20

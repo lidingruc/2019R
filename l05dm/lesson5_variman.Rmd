@@ -56,6 +56,45 @@ tribble(
 )
 ```
 
+## R读入CSV等文本数据
+使用tidyverse中的readr包：
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+```{r,eval = FALSE}
+library(readr)
+dataset <- read_csv(文件路径和文件名)
+```
+- read_csv()  读入csv文件,
+- read_csv2() 读入封号分割文件
+- read_tsv()  读入制表符分割文件 
+- read_delim() 读入各种固定分隔符文件.
+- read_fwf()  读入固定宽度文件；用 fwf_widths() or fwf_positions()设定栏位 
+- read_table() 读入空格分割的固定宽度文件
+- read_log() 读入Apache风格的log文件。更复可参考`webreadr` 。
+
+## R读入固定分隔文件{#myImageP90}
+
+使用菜单：
+
+<div style="float: left;width: 30%;text-align: left;">
+![](../pic/importdata.png)
+</div>
+
+<div style="float: right;width: 70%;text-align: right;">
+![](../pic/importdata2.png)
+</div>
+
+## 读入数据备用
+
+```{r,message= FALSE,warning=FALSE}
+# 读入数据
+bike <- read_delim("../data/nc_bike_crash.csv", ";", 
+    escape_double = FALSE, trim_ws = TRUE)
+head(bike)
+```
+
 
 # 使用`dplyr` 处理变量
 
@@ -64,18 +103,10 @@ tribble(
 - 第一个参数是数据框
 - 返回的是数据框 
 
-
 ## 筛选个案 `filter()`
 
 - 选择案例（行）
 - 能同时设定多个筛选条件
-
-```{r,message= FALSE,warning=FALSE}
-# 读入数据
-bike <- read_delim("../data/nc_bike_crash.csv", ";", 
-    escape_double = FALSE, trim_ws = TRUE)
-```
-##筛选个案 `filter()` 
 
 选出Durham县发生的与自行车相关的交通事故
 注意：== | & > < >= <= != 等比较符号。
@@ -90,7 +121,7 @@ bike %>%
 
 ```{r}
 bike %>%
-  filter(County == "Durham", Bike_Age < 10)
+  filter(County == "Durham",Bike_Age < 10)
 ```
 
 ## `slice()` 选择部分案例 
@@ -172,6 +203,7 @@ bike <- bike %>%
   mutate(Bike_birth=Crash_Year - Bike_Age,
          Drvr_birth=Crash_Year - Drvr_Age,
          month = lubridate:: month(Crash_Date))
+
 bike%>% ggplot(aes(month)) +  geom_bar() 
 
 ```
@@ -311,7 +343,8 @@ top_n 可以得到最多的几个
 bike %>%
   group_by(BikeAge_Gr) %>%
   summarize(crash_count= n()) %>%
-  top_n(n = 5)   #如果要降序可以加一句 arrange(desc(crash_count)) %>%
+  arrange(desc(crash_count)) %>%
+  top_n(n = 5)   #如果要降序可以加一句 
 ```
 
 # 字符串处理详解
