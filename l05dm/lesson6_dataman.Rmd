@@ -1,7 +1,7 @@
 ---
 title: "备砖：<br> 用R进行数据管理2"
 author: "李丁"
-date: "2018年"
+date: "2019年"
 output:
   ioslides_presentation:
     highlight: pygments
@@ -12,9 +12,9 @@ output:
 ## 内容提纲
 
 - 数据读入 Data import
-    + 导入CSV数据
     + haven导入SPSS、stata数据
     + foreign包导入SPSS、stata数据
+    + 读入Excel文件
     + 读入数据库数据
     
 - 数据整理 Tidy data
@@ -23,87 +23,15 @@ output:
     + 长数据变宽数据:spread
     + 数据的合并:merge & join
 
+## 用haven包读入其他格式数据
+- From text: base —— read.csv,read.table ……
 
-# 数据读入
+- From text: readr —— read_csv,read_table2,read_delim 
 
-## R读入CSV等文本数据
-使用tidyverse中的readr包：
-```{r, message=FALSE}
-library(tidyverse)
-```
+-From Excel: readxl —— read_excel
 
-```{r,eval = FALSE}
-library(readr)
-dataset <- read_csv(文件路径和文件名)
-```
-- read_csv()  读入csv文件,
-- read_csv2() 读入封号分割文件
-- read_tsv()  读入制表符分割文件 
-- read_delim() 读入各种固定分隔符文件.
-- read_fwf()  读入固定宽度文件；用 fwf_widths() or fwf_positions()设定栏位 
-- read_table() 读入空格分割的固定宽度文件
-- read_log() 读入Apache风格的log文件。更复可参考`webreadr` 。
+-From stata spss sas: haven 
 
-## R读入固定分隔文件{#myImageP90}
-使用菜单：
-
-<div style="float: left;width: 30%;text-align: left;">
-![](../pic/importdata.png)
-</div>
-
-<div style="float: right;width: 70%;text-align: right;">
-![](../pic/importdata2.png)
-</div>
-
-
-## R读入固定分割文件
-Rstudio推荐的是用readr包，自动变为tbl文件。
-读入一个北卡罗来纳州的自行车交通事故相关的数据。
-```{r,message= FALSE,warning=FALSE}
-library(readr)
-bike <- read_delim("../data/nc_bike_crash.csv", ";", 
-    escape_double = FALSE, trim_ws = TRUE)
-```
-```{r}
-class(bike)
-```
-
-下载数据 https://stat.duke.edu/~mc301/data/nc_bike_crash.csv
-
-更多信息 https://stat.duke.edu/~mc301/data/nc_bike_crash.html.
-
-[原始网站](https://opendurham.nc.gov/explore/dataset/north_carolina_bicycle_crash_data_heatmap_/table/)
-
-## R读入固定分割文件
-使用utils包中的read.table和read.csv命令，进一步变为tbl文件
-```{r, eval=FALSE}
-bike <- read.csv("../data/nc_bike_crash.csv", 
-                 sep = ";", 
-                 stringsAsFactors = FALSE) %>%
-       tbl_df() 
-class(bike)
-```
-
-## 查看数据及其属性
-命令格式：
-```{r,eval =FALSE}
-View(data)
-class(data)
-str(data)
-head(data)
-dim(data)
-names(data)
-```
-
-例如：
-```{r}
-dim(bike)
-str(bike)
-```
-
-
-## 读入SPSS、stata或SAS数据
-Rstudio推荐使用**haven**包读入数据
 ```{r,eval= FALSE}
 library(haven)
 data1 <- read_sav("路径+文件名.sav")
@@ -111,25 +39,19 @@ data2 <- read_stata("路径+文件名.dta",encoding ="GB2312")
 data3 <- read_sas("路径+文件名.sas7bdat")
 ```
 
-<br>
-**haven**包读入数据后，变量和取值标签变为变量的属性。
+## haven读入stata数据{#myImageP50}
 
-Stata14之前的数据无Encoding信息,中文数据可能是GB2312编码。
-
-Stata14版本支持unicode编码。haven默认可以读入。
-
-## haven读入stata数据:CGSS{#myImageP50}
-预览为乱码时，可尝试设定encoding=“GB2312”或encoding=“gbk”。无乱码encoding为默认的utf-8即可。
+Stata13之前版本可能需要设定，stata14后版本通常不用，除非数据文件中的encoding信息设定错误。用对话框导入中文数据时，预览为乱码则可尝试设定encoding=“gb2312”，encoding=“gb18030”或者encoding=“gbk”。
 
 ![](../pic/readcgss.png)
 
 ```{r,eval = FALSE}
 library(haven)
-cgss2003 <- read_dta("../data/cgss2003.dta",encoding = "utf-8")
+cgss2013 <- read_dta("../data/cgss2013.dta",encoding = "gb18030")
 ```
 
 ## haven读入SPSS数据:CGSS{#myImageP70}
-haven包1.1.1版之前的read_spss默认编码为unicode，无法设定encoding信息。而有时一些中文SPSS数据的编码不是utf-8，导致乱码。可以将数据存为spss低版本再试。1.1.1之后的版本可以设定encoding。
+一些中文SPSS数据的编码不是utf-8,haven包通过设定encoding，获得正确的数据。
 
 ![](../pic/cgssspss2.png) 
 
@@ -138,18 +60,19 @@ haven包1.1.1版之前的read_spss默认编码为unicode，无法设定encoding�
 
 ```{r}
 library(haven)
-cgss2003 <- read_sav("../data/CGSS2003b.sav")  # spss7.0版数据
-str(cgss2003$sitetype)
-attr(cgss2003$sitetype,"label")
-attr(cgss2003$sitetype,"labels")
-attr(attr(cgss2003$sitetype,"labels"),"names")[7]
+cgss2013 <- read_sav("../data/cgss2013.sav")  #
+str(cgss2013$s5a)
+attr(cgss2013$s5a,"label")
+attr(cgss2013$s5a,"labaels")
+attr(attr(cgss2013$s5a,"labels"),"names")[3]
 ```
 
-## 使用label信息：直接统计无标签信息{#myImageP50}
+## 普通命令不直接调用标签信息{#myImageP50}
 
 <div style="float: left;width: 40%;text-align: left;">
 ```{r}
-cgss2003 %>%  count(sitetype)
+library(tidyverse)
+cgss2013 %>%  count(s5a)
 ```
 </div>
 
@@ -159,95 +82,154 @@ cgss2003 %>%  count(sitetype)
 </div>
 <div style="float: left;width: 50%;text-align: left;">
 ```{r}
-ggplot(cgss2003, aes(x=sitetype)) +
+ggplot(cgss2013, aes(x=s5a)) +
   geom_bar() + 
   scale_x_discrete(drop=TRUE)
 ```
 </div>
 
-## 使用label信息:使用sjPlot包分析-表
+##使用[(strange jack)](http://www.strengejacke.de/sjPlot/)的包
+
+jPlot、sjmisc、sjstats等包使用标签信息
+sjlabelled  用来处理标签信息
 
 ```{r , warning = FALSE,message= FALSE}
 if(!require(sjmisc)) install.packages("sjmisc")
 if(!require(sjPlot)) install.packages("sjPlot")
-sjt.frq(cgss2003$sitetype)
+if(!require(sjlabelled)) install.packages("sjlabelled")
+frq(cgss2013$s5a)
 ```
 
 ## 使用label信息:使用sjPlot包分析-图
 ```{r,fig.height= 4}
-sjPlot::set_theme(theme.font ='STXihei' ) # STHeiti也可
-cgss2003  %>% select(sitetype) %>%  sjplot(fun="frq")
+sjPlot::set_theme(theme.font ='SimSun' ) # STHeiti也可
+cgss2013  %>% select(s5a) %>%  sjplot(fun="frq")
 ```
 
 [更多介绍1](https://strengejacke.wordpress.com/2016/11/14/pipe-friendly-workflow-with-sjplot-sjmisc-and-sjstats-part-1-rstats-tidyverse/);[更多介绍2](https://strengejacke.wordpress.com/sjplot-r-package/);[MAC电脑Rstudio作图中文乱码的解决方案](http://note.youdao.com/noteshare?id=9367dbf7c91458d07f54e256b6c2271d)
 
+## 字体信息
 
-## 使用label信息:标签转为因子-更好
-使用haven包的as_factor()命令可以将所有labelled的列变成因子。
+<div style="float: right;width: 45%;text-align:right;">
+**mac**
+
+华文细黑：STHeiti Light [STXihei]
+
+华文黑体：STHeiti
+
+华文楷体：STKaiti
+
+华文宋体：STSong
+
+华文仿宋：STFangsong
+
+俪黑 Pro：LiHei Pro Medium
+
+俪宋 Pro：LiSong Pro Light
+
+标楷体：BiauKai
+
+苹果俪中黑：Apple LiGothic Medium
+
+苹果俪细宋：Apple LiSung Light
+
+</div>
+
+<div style="float: left;width: 45%;text-align:right;">
+**windows**
+
+新细明体：PMingLiU
+
+细明体：MingLiU
+
+标楷体：DFKai-SB
+
+黑体：SimHei
+
+宋体：SimSun
+
+新宋体：NSimSun
+
+仿宋：FangSong
+
+楷体：KaiTi
+
+仿宋_GB2312：FangSong_GB2312
+
+楷体_GB2312：KaiTi_GB2312
+
+微软正黑体：Microsoft JhengHei
+
+微软雅黑体：Microsoft YaHei
+
+</div>
+
+常见中文字体名：http://www.cnblogs.com/code/articles/2381967.html
+
+## 将带标签的分类变量变为因子
+
+灵活性会更大一些
+
+有多重方式，如使用haven包as_factor()命令将labelled列变成因子。
 ```{r,fig.height=2.5}
-cgss2003  %>%
-  filter(sitetype>0) %>%
-  select(sitetype) %>% 
-  haven::as_factor() %>% 
-  droplevels() %>% 
-  sjplot(fun="frq",axis.title="调查地类型")
+cgss2013  %>%
+  filter(s5a>0) %>% select(s5a) %>% 
+  haven::as_factor() %>% droplevels() %>% 
+  ggplot(aes(x=s5a)) +geom_bar() + 
+  scale_x_discrete(drop=TRUE)
 ```
 
-## 使用label信息:标签转为因子
-用SJ[(strange jack)](http://www.strengejacke.de/sjPlot/)的`sjmisc::to_label()`可以将所有labbled的变量转为因子。
+## 将带标签的分类变量变为因子
 
-可同时设定将用户缺失值替换为NA(drop.na=TRUE)，删除未用到的取值标签(drop.levels=TRUE)。
+用SJ[(strange jack)](http://www.strengejacke.de/sjPlot/)的`sjmisc::to_label()`将所有带标签的变量转为因子。可同时将用户缺失值替换为NA(drop.na=TRUE)，删除未用到的取值标签(drop.levels=TRUE)。
 
 ```{r,fig.height=2.5}
-cgss2003  %>%
-  select(sitetype) %>% 
+cgss2013  %>%
+  select(s5a) %>% 
   sjmisc::to_label(drop.levels=TRUE) %>% 
   sjplot(fun="frq",axis.title="调查地类型")
 ```
 
-## 使用label信息:带标签的连续变量
-上面的命令将定义了用户值标签的*连续变量*也变成了因子，不好！最好先处理好这些标签。<br>sjlabelled和haven中zap_labels可批量删除标签并将标签对应的取值都替换为NA。
+## 带缺失值标签的连续变量
+
+有些*连续变量*带有缺失值标签，如果批量处理也会变成因子。
+因此，最好删除缺失值标签[若缺失类型信息有用请另存到其他变量]。sjlabelled和haven中zap_labels可批量删除标签并将标签对应取值替换为NA。
 
 ```{r,fig.height=2.5,message=FALSE}
-cgss2003  %>%
-  select(birth05) %>% 
-  sjlabelled::zap_labels() %>% 
-  qplot(x=birth05,data=.,binwidth=5)
+cgss2013  %>%
+  select(a3a) %>% 
+  sjlabelled::zap_labels() %>%  # 如果没有这一句是啥效果
+  qplot(x=a3a,data=.,binwidth=5)
 ```
 
-## **haven**读入SPSS和Stata数据的最优操作
-```{r}
-library(haven)
-cgss2003 <- read_sav("../data/CGSS2003.sav") 
-#1、替换特殊缺失值
-cgss2003[cgss2003==-1] <- NA;cgss2003[cgss2003==-2] <- NA;cgss2003[cgss2003==-3] <- NA
-#2、丢弃没有用到的取值标签（包括上面特殊缺失值标签）
-cgss2003 <- sjlabelled::drop_labels(cgss2003) 
-#3、label转为因子
-cgss2003 <- sjmisc::to_label(cgss2003) 
-# 将剩下的labelled变量转化为数值变量（原来带特殊值标签的连续变量在此）。
-w <- which(sapply(cgss2003, class) == 'labelled')
-cgss2003[w] <- lapply(cgss2003[w], 
-                      function(x) as.numeric(as.character(x))
-                      )
+## R处理Stata等带标签中文数据的建议操作
+
+1、将用户自定义缺失值替换为NA（若需用到请先创建新变量存储）
+2、删除用户自定义缺失值标签(-1,-2,-3,99996，-99999之类的)
+3、将带取值标签的变量变为因子变量
+```{r,warnings=FALSE}
+cgss2013<-read_dta('../data/cgss2013.dta',encoding="gb18030") %>% 
+  mutate_all(funs(replace(., .==-1|.==-2|.==-3, NA))) %>%  # 替换缺失值
+ sjlabelled::drop_labels()  %>%  # 删除未用到的取值标签，含自定义缺失值的标签
+ sjmisc::to_label()  %>%  # 剩余的带标签的变量变为因子变量
+ mutate_if(is.labelled, as.numeric) # 已经删除了缺失值标签的数字变量变为数字
 ```
+
 ## 分析
 ```{r,fig.height=2.5,message=FALSE}
-cgss2003  %>%
-  qplot(x=birth05,data=.,binwidth=5)
+cgss2013  %>%
+  qplot(x=a3a,data=.,binwidth=5)
 ```
 
 ## foreign包读入数据{#myImageP90}
-foreign包也是读入数据的常见包。其read.spss可设定reencode等参数。
+foreign包也可读入,其read.spss可设定reencode等参数。
 ```{r,warning =FALSE }
-cgss <- foreign::read.spss("../data/CGSS2003.sav"
-                           ,reencode = "GB2312",
+cgss <- foreign::read.spss("../data/cgss2013.sav",
                            to.data.frame=TRUE,max.value.labels=50)
-table(cgss$sex)
+table(cgss$a2)
 ```
 
-
-## foreign包读入数据的标签
+## foreign包处理数据标签
 变量标签存在 variable.labels属性当中；取值标签存在label.table属性中。<br>默认将带标签的变量转化为factor类型。部分取值没有label,会自动添加。
 
 ```{r,warning= FALSE}
@@ -263,29 +245,9 @@ cgss[cgss=="不知道/说不清"] <- NA
 cgss[cgss=="不适合"] <- NA
 cgss[cgss=="不适用"] <- NA
 cgss <- droplevels(cgss)
-ggplot(data=cgss,aes(x=sitetype))+geom_bar() +theme(text=element_text(family="STKaiti"))
+ggplot(data=cgss,aes(x=s5a))+geom_bar() +theme(text=element_text(family="STKaiti"))
 #SimSun、SimHei 、STHeiti、 STXihei 
 ```
-中文字体名：http://www.cnblogs.com/code/articles/2381967.html
-
-
-## 针对中文数据的改进
-陈华珊自定义的ezdf包针对中文做了一些改进，将变量标签存在了meta数据框中,可分别设变量标签和文本变量的编码。其中定义了简单的汇总函数，可将取值标签自动添加到汇总统计中。
-```{r,eval= FALSE}
-# 安装必要的包，运行一次即可
-install.packages('haven', 'data.table')
-library(devtools)
-install_github('huashan/ezdf')
-#install_github('huashan/pander')
-
-# 加载包
-library(ezdf)
-dat <- readStata("../data/cgss2003.dta",varNameEncoding="GB2312",charEncoding="GBK")
-tbl(dat,~ commtype)
-```
-
-更多信息:https://github.com/huashan/ezdf/blob/master/Doc/Easy_Data.pdf
-
 
 ##  注意: Strings (characters) 和 factors的差异
 
@@ -293,23 +255,6 @@ tbl(dat,~ commtype)
 - 有时候会带来麻烦
 - 使用 `stringsAsFactors = FALSE` 修改默认设定
 + 可以将其他数据导出为csv文件(注意编码)然后读入R 
-
-##  读入数据库数据
-
- - 电脑首选需要安装ODBC驱动，R需要安装RODBC包
- - 然后在电脑系统里设置ODBC数据源(注意字符编码格式)
- - 用RDOBC连接数据源，利用SQL语句查询和修改数据
- 
-```{r}
-library(RODBC)
-setwd("/Users/liding/Documents/空间/data/")
-#channel<-odbcConnect("mydsn",uid="user",pwd="rply") 
-#channel<-odbcConnectAccess("TrainDatabase.mdb") # 不能用
-channel <- odbcConnect("train") 
-sqlTables(channel)
-df <-sqlFetch(channel, "TrainList")
-head(df)
-```
 
 
 # 数据整理
@@ -546,48 +491,6 @@ tidy4b <- table4b %>%
   gather(`1999`, `2000`, key = "year", value = "population")
 left_join(tidy4a, tidy4b)
 ```
-
-## 数据的合并:基础命令 
-dataframe的合并
-```{r,eval = FALSE}
-rbind() ## 添加行
-cbind() ## 添加列 
-```
-当变量名不一致时，需要先统一变量名。如果一个数据有而另一个数据没有则需要先创建空变量
-
-```{r}
-#统一数据框的列数，方便使用rbind进行数据合并
-hvar <- names(hdata)
-gvar <- names(gdata)
-
-#最大的变量集
-allvar <- union(hvar,gvar)
-
-#缺的变量（没有考虑变量类型问题）
-nothvar <- setdiff(allvar, hvar)
-notgvar <- setdiff(allvar, gvar)
-
-#生成缺失变量
-ahvar <- setNames(data.frame(matrix(ncol = length(nothvar), nrow=dim(hdata) [1])),nothvar)
-agvar <- setNames(data.frame(matrix(ncol = length(notgvar), nrow=dim(gdata) [1])),notgvar)
-
-#用合并的方式将缺失变量放进去
-hdata <- cbind(hdata,ahvar)
-gdata <- cbind(gdata,agvar)
-
-rm(hvar,gvar,allvar,nothvar,notgvar,ahvar,agvar)
-##############
-#合并主干表格
-alldata <- rbind(hdata,gdata)
-
-```
-
-## 数据的纵向合并:append 
-
-或者使用下面的命令
- dplyr::bind_rows() 可以设定 id,
- plyr::rbind.fill 
-
 
 
 
