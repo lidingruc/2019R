@@ -1,3 +1,8 @@
+####################
+#  gather  multiple groups of variable
+#  rbind cases
+
+# 
 # 进行长宽数据转换的例子
 # 一次处理多个变量时可以先将数据变成长数据然后进行处理
 
@@ -58,10 +63,24 @@ df <- data_frame(
   Q3.3.3. = rnorm(10, 0, 1)
 )
 
+#方法1
 df %>%
   gather(-id, -time, key = key, value = value) %>%
   extract(key, c("question", "loop_number"), "(Q.\\..)\\.(.)", convert = TRUE) %>%
   spread(question, value)
+
+#方法2
+colnames(df) <- gsub("\\.(.{2})$", "_\\1", colnames(df))
+colnames(df)[2] <- "Date"
+res <- reshape(df, idvar=c("id", "Date"), varying=3:8, direction="long", sep="_")
+row.names(res) <- 1:nrow(res)
+
+# 方法3
+df %>% 
+  pivot_longer(cols = starts_with("Q3"), 
+    names_to = c(".value", "Q3"), names_sep = "_") %>% 
+  select(-Q3)
+
 
 # http://stackoverflow.com/questions/32934400 -----------------------------
 
@@ -105,5 +124,67 @@ x %>%
   summarise_all(c("typeof", "anyNA", "mean")) %>%
   gather(key = "key", value = "value", -Species) %>%
   separate(key, into = c("measurement", "statistic"), sep = "[_]")
+
+
+###################
+## 数据的纵向合并
+
+## 用基础命令 
+#当变量名不一致时，需要先统一变量名。如果一个数据有而另一个数据没有则需要先创建空变量
+
+hdata <- data.frame(
+  id = 1:10,
+  time = as.Date('2009-01-01') + 0:9,
+  Q3.2.1. = rnorm(10, 0, 1),
+  Q3.2.2. = rnorm(10, 0, 1),
+  Q3.2.3. = rnorm(10, 0, 1),
+  Q3.3.1. = rnorm(10, 0, 1),
+  Q3.3.2. = rnorm(10, 0, 1),
+  Q3.3.3. = rnorm(10, 0, 1)
+)
+
+gdata <- data.frame(
+  id = 1:10,
+  time = as.Date('2009-01-01') + 0:9,
+  Q3.2.1. = rnorm(10, 0, 1),
+  Q3.2.2. = rnorm(10, 0, 1),
+  Q3.2.3. = rnorm(10, 0, 1),
+  Q3.4.1. = rnorm(10, 0, 1),
+  Q3.4.2. = rnorm(10, 0, 1),
+  Q3.4.3. = rnorm(10, 0, 1)
+)
+
+
+
+#使用下面的命令
+# dplyr::bind_rows() 可以设定 id,
+# plyr::rbind.fill 
+alldata <- plyr::rbind.fill(hdata,gdata) 
+alldata <- dplyr::bind_rows(hdata,gdata) 
+
+
+#统一数据框的列数，方便使用rbind进行数据合并
+hvar <- names(hdata)
+gvar <- names(gdata)
+
+#最大的变量集
+allvar <- union(hvar,gvar)
+
+#缺的变量（没有考虑变量类型问题）
+nothvar <- setdiff(allvar, hvar)
+notgvar <- setdiff(allvar, gvar)
+
+#生成缺失变量
+ahvar <- setNames(data.frame(matrix(ncol = length(nothvar), nrow=dim(hdata) [1])),nothvar)
+agvar <- setNames(data.frame(matrix(ncol = length(notgvar), nrow=dim(gdata) [1])),notgvar)
+
+#用合并的方式将缺失变量放进去
+hdata <- cbind(hdata,ahvar)
+gdata <- cbind(gdata,agvar)
+
+rm(hvar,gvar,allvar,nothvar,notgvar,ahvar,agvar)
+##############
+#合并主干表格
+alldata <- rbind(hdata,gdata)
 
 
