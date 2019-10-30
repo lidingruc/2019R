@@ -8,7 +8,8 @@
 # --读入数据并进行了预处理
 # -------------------------------------------
 ### 读入数据,预处理为一般的R数据
-if (!require(tidyverse)) install.packages('tidyverse')	
+if (!require(tidyverse)) install.packages('tidyverse')
+
 if (!require(sjPlot))install.packages('sjPlot')
 if (!require(sjmisc))install.packages('sjmisc')
 if (!require(sjlabelled))install.packages('sjlablled')
@@ -61,24 +62,29 @@ des(cgss2013)
 # A.1分类变量 频次图
 sjPlot::set_theme(theme.font ='STXihei' )
 cgss2013 %>%
-  select(a10) %>%as_numeric %>%  
+  dplyr::select(a10) %>% as_numeric %>%  
   sjPlot::plot_frq()
 
 # sjplot(fun="frq")  # 此前的版本
 
 cgss2013 %>%
   mutate(grp = 1) %>% 
-  select(a10,grp) %>% 
+  dplyr::select(a10,grp) %>% 
   sjPlot::sjplot(fun="grpfrq")+theme(legend.position = "none") 
 
 # A.2分类变量 qplot
 cgss2013 %>%
   qplot(a10,data=.)
+#qplot(a10,data=cgss2013)
 
 # A.3分类变量 ggplot
 cgss2013 %>%
   filter(!is.na(a10)) %>% 
-  ggplot(aes(x=a10))+geom_bar()
+  ggplot(aes(x=a10))+geom_bar() +
+  title("频次")+
+  xlabel("")+
+  ylabel("")
+
 
 #B.1 分类变量频次表
 cgss2013 %>% 
@@ -87,12 +93,14 @@ cgss2013 %>%
 cgss2013 %>% 
   sjmisc::frq(a281:a286,out = "viewer",show.na = FALSE)
 
+# stata tab1 a281-a286
+
 frq(cgss2013$a7a)
 frq(cgss2013$a7a,out ="viewer",title="最高的教育水平")
 
 #B.2 分类变量频次表频次表-叠加表
 cgss2013 %>% 
-  select(a281:a286) %>% # tab_stackfrq()
+  dplyr::select(a281:a286) %>% # tab_stackfrq()
   sjPlot::sjtab(fun = "stackfrq",use.viewer = TRUE
                 ,show.total = TRUE) 
 
@@ -103,59 +111,63 @@ sjPlot::view_df(cgss2013[,550:577], show.frq = TRUE, show.prc = TRUE)
 
 #C.1分组条形图：单元格百分比
 cgss2013  %>%
-  select(s5a,a2) %>% 
+  dplyr::select(s5a,a2) %>% 
   #as_numeric() %>% 
   sjPlot::sjplot(fun="grpfrq")
 
 #C.2 分组条形图：组内百分比
 cgss2013  %>%
-  select(s5a,a2) %>% 
+  dplyr::select(s5a,a2) %>% 
   sjPlot::sjplot(fun="xtab",margin="col",show.total=FALSE,coord.flip = FALSE,ylim=c(0,0.55)) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
 #C.3 分组条形图：叠加百分比图
 cgss2013  %>%
-  select(s5a,a2) %>% 
+  dplyr::select(a2,s5a) %>% 
   #as_numeric() %>% 
-  sjPlot::sjplot(fun="xtab",margin="row",
+  sjPlot::sjplot(fun="xtab",margin="col",
                  bar.pos="stack",show.total=FALSE)
 
 cgss2013  %>%
   #mutate(a10=fct_collapse(a10,非党员=c("民主党派","共青团员","群众"))) %>% 
-  select(a2,a10) %>% 
+  dplyr::select(a2,a10) %>% 
   sjPlot::sjplot(fun="xtab",margin="row",bar.pos = "stack",show.n=FALSE)
+
 
 #D.1分类变量交叉表-频次
 cgss2013 %>% 
-  select(s5a,a281) %>% 
-  sjPlot::sjtab(fun = "xtab", use.viewer = TRUE) 
+  dplyr::select(s5a,a281) %>% 
+  sjPlot::sjtab(fun = "xtab") 
 
 #D.2 分类变量交叉表-百分比
 
 cgss2013 %>% 
-  select(s5a,a281) %>% 
+  dplyr::select(s5a,a284) %>% 
   sjPlot::sjtab(fun = "xtab", use.viewer = TRUE,
                 show.obs = FALSE, show.row.prc = TRUE) 
 
 #D.3 分类变量交叉表-百分比，直接输入到console中
 
 cgss2013 %>% 
-  select(s5a,a281) %>% 
+  dplyr::select(s5a,a281) %>% 
   flat_table(margin = "row") 
 
 sjt.xtab(cgss2013$a7a,cgss2013$a2, 
          show.obs = TRUE, show.cell.prc = FALSE, show.col.prc = TRUE,title="分性别的教育分布情况")
 
+
 ## 连续变量
 #E.1 直方图
-cgss2013  %>% select(a3a) %>%  plot_frq( type="histogram") 
+cgss2013  %>% dplyr::select(a3a) %>%  plot_frq( type="histogram") 
+
 #E.2 密度图
-cgss2013  %>% select(a3a,a3b) %>%  plot_frq( type="density") 
+cgss2013  %>% dplyr::select(a3a,a3b) %>%  plot_frq( type="density") 
 
 #F.1 描述
-cgss2013  %>% select(a3a,a3b,a13,a14 ) %>% 
+cgss2013  %>% dplyr::select(a3a,a3b,a13,a14 ) %>% 
   descr(out="viewer") # without variable label
 
-cgss2013  %>% select(a3a,a3b,a13,a14 ) %>% 
+cgss2013  %>% dplyr::select(a3a,a3b,a13,a14 ) %>% 
   descr()
 
 # G. Correlation 
@@ -290,7 +302,7 @@ wireframe(V1~x*y,data=result6,scales = list(arrows = FALSE),
 # - 三 利用ggplot2作图 -
 # ----------------------------------------------
 # ggplot2 package (by Hadley Wickham)
-# 请主要参看 R4DS 第3张visulisation
+# 请主要参看 R4DS 第3章visulisation
 #主要内容
 # 数据与映射，mapping
 # 几何对象，geom
@@ -309,7 +321,7 @@ wireframe(V1~x*y,data=result6,scales = list(arrows = FALSE),
 
 library(ggplot2)
 library(car)
-library(MASS)
+# library(MASS) #  select 函数冲突
 ###################################################
 # A. ggplot 函数
 
