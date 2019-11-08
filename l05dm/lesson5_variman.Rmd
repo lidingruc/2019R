@@ -693,7 +693,7 @@ cred <- read.spss("../xample final/credit_card.sav",to.data.frame =TRUE)
 # spss日期转换R格式 
 # SPSS的日期以1582年10月14日为基准
 cred$dob <- cred$dob++ISOdate(1582,10,14)
-cred$card_date <- cred$card_date++ISOdate(1582,10,14)
+cred$card_date <- cred$card_date+ISOdate(1582,10,14)
 
 ```
 

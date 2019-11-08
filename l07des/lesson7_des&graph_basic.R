@@ -1,6 +1,201 @@
+############################################################
+## 四、分类汇总————使用基础命令
+# -------------------------------------------
+# R统计入门课程资料：http://www.stat.wmich.edu/~hzz3534/stat2600s1/
+# -------------------------------------------
+
+data(tips,package='reshape2')
+#tips数据集练习，它是一个餐厅侍者收集的关于小费的数据，其中包含了七个变量，包括总费用、付小费的金额、付款者性别、是否吸烟、日期、日间、顾客人数。
+head(tips)
+
+#计算不同性别顾客是否会支付不同的小费比例。则可以按sex变量汇集数据。
+#方法1 aggregate方法
+aggregate(x=tips$tip,
+          by=list(tips$sex),
+          FUN=mean)
+
+#stata做法： table sex,c(mean tip)
+
+#方法2 data.table中的dcast方法。更多介绍见后面
+library(data.table)
+dcast(data=tips,sex~. ,fun=mean)  ## 默认的汇总 size
+
+dcast(data=tips,sex~. ,value.var='tip',fun=mean) # 分性别汇总
+
+dcast(data=tips,sex~smoker,value.var='tip',fun=mean) # 分性别和吸烟汇总
+
+dcast(data=tips,sex~smoker,value.var='tip',fun=median) # 分性别和吸烟汇总
+
+### ddply方法
+library(plyr)
+dd<-ddply(.data=tips,   ## 数据对象
+          .variables='sex',## 拆分变量
+          .fun=function(x){  ## 计算函数
+            mean(x$tip)
+          })
+
+dd
+
+# 小费占比
+ratio_fun<- function(x){
+  sum(x$tip)/sum(x$total_bill)
+} 
+ddply(tips,.(sex),ratio_fun)
+
+#stata做法：table sex smoker,c(sum tip sum total_bill)
+ddply(tips,sex~smoker,ratio_fun)
+
+## plyr包的主要函数（输入3种类型，输出3种类型，9种方法，加上3种特殊类型）
+### ddply 输入数据框，输出数据框
+### adply 输入数组，输出数据框 
+# input array, split by margins
+
+data<-as.matrix(iris[,-5])  ##  去除最后一个分类变量
+result4 <- adply(.data=data,
+                 .margins =2, #1 =rows 2=col
+                 .fun=function(x){
+                   max<-max(x)
+                   min<-min(x)
+                   median<-median(x)
+                   sd<-round(sd(x),2)
+                   return(c(max,min,median,sd))
+                 })
+result4
+result4 <- adply(.data=data,
+                 .margins =2, #1 =rows 2=col
+                 .fun=function(x){
+                   each(max,min,median,sd)(x)
+                 }) 
+result4     
+
+#build three linear regression model in list
+
+model<- function(x){
+  lm(Sepal.Length~Sepal.Width,data=x)
+}
+models <- dlply(.data=iris,
+                .variable='Species',
+                .fun=model)
+
+#得到一个list 里面是3个模型的结果
+#得到三个模型的系数        
+result5<- ldply(.data=models,
+                .fun=coef)
+
+result5
+
+## 其他可用的汇总函数
+#each函数
+x<-rnorm(10)
+# 求变量的多个统计量
+each(max,min,median,sd)(x)
+# 求数值变量的均值
+colwise(mean,is.numeric)(iris)
+
+# plyr中的其他函数
+#join~merge
+#mutate~transform
+#summarise~transform
+#arrange~order
+#rename~name
+#mapvalues~relevel
+#count~length
+
+#
+library(nycflights13)
+summary_temp <- weather %>% 
+  summarize(mean = mean(temp, na.rm = TRUE), std_dev = sd(temp, na.rm = TRUE))
+knitr::kable(summary_temp)
+
+
+# 分组之后比较均值
+library(car)
+tips$total_bill.rec <- recode(tips$total_bill,
+                              "0:10='0to10';
+                              10:29='11to29';
+                              29:51='30to51'")
+tips$total_bill.rec <- as.factor(tips$total_bill.rec)
+# 分组之后比较均值
+dcast(data=tips,total_bill.rec~. ,value.var='tip',fun=mean)
+
+###########
+#dcast分类汇总，更多介绍
+# http://www.xueqing.tv/upload/april-training/day3/index.html#1
+# 来自
+data(tips,package='reshape2');
+
+#tips数据集练习，它是一个餐厅侍者收集的关于小费的数据，其中包含了七个变量，包括总费用、付小费的金额、付款者性别、是否吸烟、日期、日间、顾客人数。
+head(tips)
+#计算不同性别顾客是否会支付不同的小费比例。则可以按sex变量汇集数据。
+dcast(tips,sex~.,value.var='tip',fun=mean)
+#按sex和size变量划分数据，分别计算小费金额，可以观察到用餐人数越多时，小费相应给的越多，而且男性顾客一般会比女性顾客大方一点。
+dcast(tips,sex~size,value.var='tip',fun=mean)
+
+#dcast函数的使用前提
+#数据中已经存在分类变量，例如sex或者smoker
+#根据分类变量划分数据
+#再计算某个数值变量的指标
+
+#同时计算出不同性别顾客的小费和总费用。
+#一种是笨一点的方法，将前面用过的方法用两次，然后合并这两个结果。
+dcast(tips,sex~.,value.var='tip',fun=mean)
+dcast(tips,sex~.,value.var='total_bill',fun=mean)
+
+#另一种方法是将小费和总费转成长数据，variable 标记了
+tips_melt <- melt(data = tips,
+                  id.vars=c('sex','smoker','time','size','day'))
+dcast(data = tips_melt, sex ~ variable,  
+      value.var='value',fun= mean)
+# 要同时考虑不同性别和吸烟习惯的顾客给小费的相对例。
+tips_mean <- dcast(data = tips_melt, sex+ smoker~ variable, fun= mean)
+tips_mean$rate <- with(tips_mean,tip/total_bill)
+tips_mean     
+
+#在dcast函数中的公式同时考虑到了三个分类变量，在第二步计算了小费相对于总餐费的比率，可以清楚的看到，吸烟的女性顾客相对是最大方的，而吸烟的男性则是最小气的。
+
+
+
+
+# A. Continuous variable : income
+mean(cgss2013$a8a, na.rm = TRUE)
+median(cgss2013$a8a, na.rm = TRUE)
+sd(cgss2013$a8a, na.rm = TRUE)
+quantile(cgss2013$a8a, na.rm = TRUE)
+
+
+# B.  Categorical variable : gender  edu
+table(cgss2013$a2)
+prop.table(table(cgss2013$a2))
+prop.table(table(cgss2013$a7a))
+
+as.data.frame(prop.table(table(cgss2013$a7a)))
+
+# 交叉表
+table(cgss2013$a7a,cgss2013$a2)  
+ftable(cgss2013$a7a,cgss2013$a2)
+with(cgss2013,table(a7a,a2))
+xtabs(~a7a+a2,cgss2013)
+
+# row and column percentage
+prop.table(table(cgss2013$a7a,cgss2013$a2), 1)
+prop.table(table(cgss2013$a7a,cgss2013$a2), 2)
+
+# 边缘分布
+margin.table(table(cgss2013$a7a,cgss2013$a2),1)
+addmargins(table(cgss2013$a7a,cgss2013$a2))
+
+# 下面这种算法是错误的
+atable <- addmargins(table(cgss2013$a7a,cgss2013$a2), 1)
+
+prop.table(atable)
+
+prop.table(addmargins(table(cgss2013$a7a,cgss2013$a2), 1))
+
+addmargins(prop.table(table(cgss2013$a7a,cgss2013$a2), 2))
+
 
 ############################################################
-# 四、利用基础绘图命令做统计图
+# 五、利用基础绘图命令做统计图
 
 if(!require(MASS)) install.packages("MASS")
 data(UScereal)

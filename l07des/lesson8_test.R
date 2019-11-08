@@ -23,7 +23,7 @@ if (!require(DT)) install.packages('DT')
 # --一、读入数据并进行了预处理
 # -------------------------------------------
 ### 读入数据,预处理为一般的R数据
-setwd("/Users/liding/E/Bdata/2019R")
+setwd("/Users/liding/E/Bdata/liding17/2018R")
 library(haven)
 cgss2013<-read_dta('./data/cgss2013.dta',encoding="gb18030") 
 
@@ -34,7 +34,7 @@ cgss2013<- cgss2013 %>%
   # 替换缺失值,用的lambdas 函数
   drop_labels()  %>%  
   # 删除未用到的取值标签，含自定义缺失值的标签
-  as_label(,drop.levels = TRUE)  %>%  
+  as_label(drop.levels = TRUE)  %>%  
   # 剩余的带标签的变量变为因子变量
   mutate_if(is.labelled, ~as_numeric(as.character(.))) 
 # 已经删除了缺失值标签的数字变量变为数字
@@ -64,23 +64,27 @@ des(cgss2013)
 # -- 二. 假设检验 Hypothesis Testing --
 # ------------------------------------------- 
 ############
+# 列联表的卡方检验 基本原理
 # A、Chi-square Test, small difference
 # 教育水平和性别
+sjt.xtab(cgss2013$a7a,cgss2013$a2,encoding="UTF-8")
+#如果出现乱码，尝试设定encoding为gb2312之类
+##########
+mytable<-xtabs(~cgss2013$a7a+cgss2013$a2)
+chisq.test(mytable)
+
 chisq.test(cgss2013$a7a,cgss2013$a2)
+
 summary(table(cgss2013$a2, cgss2013$a7a))
 
 # expected cell 
 ch01 <- chisq.test(cgss2013$a7a,cgss2013$a2)
-ch01$residuals
+str(ch01)
 ch01$expected
 
-
 # 标准化偏差，评估单元格影响
+ch01$residuals
 chisq.test(cgss2013$a7a,cgss2013$a2)$resid
-
-##########
-mytable<-xtabs(~cgss2013$a7a+cgss2013$a2)
-chisq.test(mytable)
 
 ##########
 #似然比检验
@@ -100,6 +104,11 @@ observed
 chisq.test(observed, correct = F)
 cbind(observed, chisq.test(observed)$expected)
 cbind(observed, chisq.test(observed)$resid)
+
+#其他的相关系数可以自己写
+#也可以在一些其他包中找到如DescTools、Hmisc中
+#DescTools::DescToolsOptions(family="STKaiti")
+#DescTools::Desc(cgss2013$a7a) # 乱码后面解决
 
 ############
 # B、t-test
@@ -122,6 +131,7 @@ tResults['statistic']
 
 # 原理示例
 # 假定方差相等，假定正太分布，检验均值相等假设
+# 胆固醇水平
 cholest <- data.frame(chol = c(245, 170, 180,190, 200, 210, 220, 230, 240, 250, 260, 185,205, 160, 170, 180, 190, 200, 210, 165), gender = rep(c("female","male"), c(12, 8)))
 str(cholest)
 cholest 
@@ -137,7 +147,7 @@ qqnorm(cholest$chol[cholest$gender == "female"],
 
 # 方差相等
 var.test(chol ~ gender, cholest)
-
+DescTools::LeveneTest(chol ~ gender, cholest)
 # 均值相等 
 t.test(chol ~ gender, cholest)
 
@@ -159,7 +169,7 @@ aov_inc
 plot(aov_inc)
 
 TukeyHSD(aov_inc)
-
+ 
 ##交互效应的表示方式
 fit <- aov(a8a ~ a7a + a2 + a7a:a2, data = cgss2013)
 fit
@@ -314,201 +324,22 @@ qnorm(0.95) # p = .05, one-tailed (upper)
 qnorm(c(0.025, 0.975)) # p = .05, two-tailed
 
 
-# -------------------------------------------
-# R统计入门课程资料：http://www.stat.wmich.edu/~hzz3534/stat2600s1/
-# 分类汇总的其他方法，参考肖凯
-#http://www.xueqing.tv/lesson/4
-#http://www.xueqing.tv/lesson/5
-# -------------------------------------------
-## 分类汇总
-data(tips,package='reshape2')
-#tips数据集练习，它是一个餐厅侍者收集的关于小费的数据，其中包含了七个变量，包括总费用、付小费的金额、付款者性别、是否吸烟、日期、日间、顾客人数。
-head(tips)
+sdest <- unique(flights$dest) %>%
+  sample(20)
 
-#计算不同性别顾客是否会支付不同的小费比例。则可以按sex变量汇集数据。
-#方法1 aggregate方法
-aggregate(x=tips$tip,
-	by=list(tips$sex),
-	FUN=mean)
+flights %>%
+  filter(dest %in% sdest) %>% 
+  group_by(month, dest) %>%
+  summarise(dep_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  group_by(dest) %>%
+  filter(n() == 12) %>%
+  ungroup() %>%
+  mutate(dest = reorder(dest, dep_delay)) %>%
+  ggplot(aes(x = factor(month), y = dest, fill = dep_delay)) +
+  geom_tile() +
+  scale_fill_viridis() +
+  labs(x = "Month", y = "Destination", fill = "Departure Delay")
 
-#stata做法： table sex,c(mean tip)
-
-#方法2 data.table中的dcast方法。更多介绍见后面
-library(data.table)
-dcast(data=tips,sex~. ,fun=mean)  ## 默认的汇总 size
-
-dcast(data=tips,sex~. ,value.var='tip',fun=mean) # 分性别汇总
-
-dcast(data=tips,sex~smoker,value.var='tip',fun=mean) # 分性别和吸烟汇总
-
-dcast(data=tips,sex~smoker,value.var='tip',fun=median) # 分性别和吸烟汇总
-
-###	ddply方法
-library(plyr)
-dd<-ddply(.data=tips,   ## 数据对象
-	.variables='sex',## 拆分变量
-	.fun=function(x){  ## 计算函数
-		mean(x$tip)
-	})
-
-dd
-
-# 小费占比
-ratio_fun<- function(x){
-  sum(x$tip)/sum(x$total_bill)
-}	
-ddply(tips,.(sex),ratio_fun)
-
-#stata做法：table sex smoker,c(sum tip sum total_bill)
-ddply(tips,sex~smoker,ratio_fun)
-
-## plyr包的主要函数（输入3种类型，输出3种类型，9种方法，加上3种特殊类型）
-### ddply 输入数据框，输出数据框
-### adply 输入数组，输出数据框 
-# input array, split by margins
-
-data<-as.matrix(iris[,-5])  ##  去除最后一个分类变量
-result4 <- adply(.data=data,
-				.margins =2, #1 =rows 2=col
-				.fun=function(x){
-					max<-max(x)
-					min<-min(x)
-					median<-median(x)
-					sd<-round(sd(x),2)
-					return(c(max,min,median,sd))
-				})
-result4
-result4 <- adply(.data=data,
-				.margins =2, #1 =rows 2=col
-				.fun=function(x){
-					each(max,min,median,sd)(x)
-				}) 
-result4			
-
-#build three linear regression model in list
-
-model<- function(x){
-	lm(Sepal.Length~Sepal.Width,data=x)
-}
-models <- dlply(.data=iris,
-				.variable='Species',
-				.fun=model)
-
-#得到一个list 里面是3个模型的结果
-#得到三个模型的系数				
-result5<- ldply(.data=models,
-				.fun=coef)
-
-result5
-
-## 其他可用的汇总函数
-#each函数
-x<-rnorm(10)
-# 求变量的多个统计量
-each(max,min,median,sd)(x)
-# 求数值变量的均值
-colwise(mean,is.numeric)(iris)
-
-# plyr中的其他函数
-#join~merge
-#mutate~transform
-#summarise~transform
-#arrange~order
-#rename~name
-#mapvalues~relevel
-#count~length
-
-#
-library(nycflights13)
-summary_temp <- weather %>% 
-  summarize(mean = mean(temp, na.rm = TRUE), std_dev = sd(temp, na.rm = TRUE))
-knitr::kable(summary_temp)
-
-
-# 分组之后比较均值
-library(car)
-tips$total_bill.rec <- recode(tips$total_bill,
-                         "0:10='0to10';
-                         10:29='11to29';
-                         29:51='30to51'")
-tips$total_bill.rec <- as.factor(tips$total_bill.rec)
-# 分组之后比较均值
-dcast(data=tips,total_bill.rec~. ,value.var='tip',fun=mean)
-
-###########
-#dcast分类汇总，更多介绍
-# http://www.xueqing.tv/upload/april-training/day3/index.html#1
-# 来自
-data(tips,package='reshape2');
-
-#tips数据集练习，它是一个餐厅侍者收集的关于小费的数据，其中包含了七个变量，包括总费用、付小费的金额、付款者性别、是否吸烟、日期、日间、顾客人数。
-head(tips)
-#计算不同性别顾客是否会支付不同的小费比例。则可以按sex变量汇集数据。
-dcast(tips,sex~.,value.var='tip',fun=mean)
-#按sex和size变量划分数据，分别计算小费金额，可以观察到用餐人数越多时，小费相应给的越多，而且男性顾客一般会比女性顾客大方一点。
-dcast(tips,sex~size,value.var='tip',fun=mean)
-
-#dcast函数的使用前提
-#数据中已经存在分类变量，例如sex或者smoker
-#根据分类变量划分数据
-#再计算某个数值变量的指标
-
-#同时计算出不同性别顾客的小费和总费用。
-#一种是笨一点的方法，将前面用过的方法用两次，然后合并这两个结果。
-dcast(tips,sex~.,value.var='tip',fun=mean)
-dcast(tips,sex~.,value.var='total_bill',fun=mean)
-
-#另一种方法是将小费和总费转成长数据，variable 标记了
-tips_melt <- melt(data = tips,
-              id.vars=c('sex','smoker','time','size','day'))
-dcast(data = tips_melt, sex ~ variable,  
-          value.var='value',fun= mean)
-# 要同时考虑不同性别和吸烟习惯的顾客给小费的相对例。
-tips_mean <- dcast(data = tips_melt, sex+ smoker~ variable, fun= mean)
-tips_mean$rate <- with(tips_mean,tip/total_bill)
-tips_mean		  
-
-#在dcast函数中的公式同时考虑到了三个分类变量，在第二步计算了小费相对于总餐费的比率，可以清楚的看到，吸烟的女性顾客相对是最大方的，而吸烟的男性则是最小气的。
-
-
-
-
-# A. Continuous variable : income
-mean(cgss2013$a8a, na.rm = TRUE)
-median(cgss2013$a8a, na.rm = TRUE)
-sd(cgss2013$a8a, na.rm = TRUE)
-quantile(cgss2013$a8a, na.rm = TRUE)
-
-
-# B.  Categorical variable : gender  edu
-table(cgss2013$a2)
-prop.table(table(cgss2013$a2))
-prop.table(table(cgss2013$a7a))
-
-as.data.frame(prop.table(table(cgss2013$a7a)))
-
-# 交叉表
-table(cgss2013$a7a,cgss2013$a2)  
-ftable(cgss2013$a7a,cgss2013$a2)
-with(cgss2013,table(a7a,a2))
-xtabs(~a7a+a2,cgss2013)
-
-# row and column percentage
-prop.table(table(cgss2013$a7a,cgss2013$a2), 1)
-prop.table(table(cgss2013$a7a,cgss2013$a2), 2)
-
-# 边缘分布
-margin.table(table(cgss2013$a7a,cgss2013$a2),1)
-addmargins(table(cgss2013$a7a,cgss2013$a2))
-
-# 下面这种算法是错误的
-atable <- addmargins(table(cgss2013$a7a,cgss2013$a2), 1)
-
-prop.table(atable)
-
-prop.table(addmargins(table(cgss2013$a7a,cgss2013$a2), 1))
-
-addmargins(prop.table(table(cgss2013$a7a,cgss2013$a2), 2))
 
 
 

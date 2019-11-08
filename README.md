@@ -138,7 +138,7 @@ https://github.com/andrewpbray/infer
 
 课堂演示:如何用R来进行卡方检验、T检验、方差检验，模拟抽样分布
 
-提交作业7：运行 http://moderndive.com/10-hypo.html 中的命令，并完成其中的learning check
+提交作业7：运行 https://moderndive.com/9-hypothesis-testing.html 中的命令，并完成其中的learning check
 
 
 ## 第9讲、建模：一般线性回归、回归诊断与拓展

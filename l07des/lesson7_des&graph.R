@@ -4,6 +4,7 @@
 #二、R作图的基本原则
 #三、ggplot2作图，映射、几何对象、分组、坐标轴、标签、样式设定等
 #四、基础绘图（自学）
+#五、分类汇总的其他做法
 
 # --读入数据并进行了预处理
 # -------------------------------------------
@@ -19,7 +20,7 @@ if (!require(DT)) install.packages('DT')
 if (!require(data.table))install.packages('data.table')
 
 
-setwd("/Users/liding/E/Bdata/2019R")
+setwd("/Users/liding/E/Bdata/liding17/2018R")
 library(haven)
 cgss2013<-read_dta('./data/cgss2013.dta',encoding="gb18030") 
 
@@ -88,7 +89,7 @@ cgss2013 %>%
 
 #B.1 分类变量频次表
 cgss2013 %>% 
-  sjmisc::frq(a10,out = "viewer",show.na = FALSE)
+  sjmisc::frq(a10,out = "viewer",encoding="utf-8",show.na = FALSE)
 
 cgss2013 %>% 
   sjmisc::frq(a281:a286,out = "viewer",show.na = FALSE)
@@ -161,7 +162,7 @@ sjt.xtab(cgss2013$a7a,cgss2013$a2,
 cgss2013  %>% dplyr::select(a3a) %>%  plot_frq( type="histogram") 
 
 #E.2 密度图
-cgss2013  %>% dplyr::select(a3a,a3b) %>%  plot_frq( type="density") 
+cgss2013  %>% dplyr::select(a3a) %>%  plot_frq( type="density") 
 
 #F.1 描述
 cgss2013  %>% dplyr::select(a3a,a3b,a13,a14 ) %>% 
@@ -302,7 +303,10 @@ wireframe(V1~x*y,data=result6,scales = list(arrows = FALSE),
 # - 三 利用ggplot2作图 -
 # ----------------------------------------------
 # ggplot2 package (by Hadley Wickham)
-# 请主要参看 R4DS 第3章visulisation
+# 请主要参看 R4DS 第3章visulisation 和28 章
+# https://r4ds.had.co.nz/data-visualisation.html
+# https://r4ds.had.co.nz/graphics-for-communication.html
+# https://moderndive.com/2-viz.html
 #主要内容
 # 数据与映射，mapping
 # 几何对象，geom
@@ -427,8 +431,10 @@ p2  + geom_point() + geom_line()
 ##########
 # 一、基础条形图 怎么按照频次进行排序
 p <- ggplot(mpg,aes(x=class))+
-  geom_bar()
+  geom_bar(stat="")
 
+#geom_bar(stat="count")
+#stat="identity"
 print(p)
 # 方法1：作图过程中改变分类次序（不改变数据，推荐）
 ggplot(mpg,
@@ -906,5 +912,3 @@ ggplot(big_cities,aes(long,lat))+borders("state",size=0.5,colour="grey70")+geom_
 p <-ggplot(us.cities,aes(long,lat))+
   borders("state",colour="grey70")
 p+geom_point(aes(long,lat,size=pop),data=us.cities,colour="black",alpha=0.5)
-
-
