@@ -92,7 +92,7 @@ ggplot(cgss2013, aes(x=s5a)) +
 
 jPlot、sjmisc、sjstats等包使用标签信息
 sjlabelled  用来处理标签信息
-
+browseVignettes("sjPlot")
 ```{r , warning = FALSE,message= FALSE}
 if(!require(sjmisc)) install.packages("sjmisc")
 if(!require(sjPlot)) install.packages("sjPlot")
@@ -103,7 +103,8 @@ frq(cgss2013$s5a)
 ## 使用label信息:使用sjPlot包分析-图
 ```{r,fig.height= 4}
 sjPlot::set_theme(theme.font ='SimSun' ) # STHeiti也可
-cgss2013  %>% select(s5a) %>%  sjplot(fun="frq")
+cgss2013  %>% select(s5a) %>%  plot_frq( type="bar") #+coord_flip() 
+#sjplot(fun="frq")  # 2.62 版本以前
 ```
 
 [更多介绍1](https://strengejacke.wordpress.com/2016/11/14/pipe-friendly-workflow-with-sjplot-sjmisc-and-sjstats-part-1-rstats-tidyverse/);[更多介绍2](https://strengejacke.wordpress.com/sjplot-r-package/);[MAC电脑Rstudio作图中文乱码的解决方案](http://note.youdao.com/noteshare?id=9367dbf7c91458d07f54e256b6c2271d)
@@ -111,57 +112,33 @@ cgss2013  %>% select(s5a) %>%  sjplot(fun="frq")
 ## 字体信息
 
 <div style="float: right;width: 45%;text-align:right;">
-**mac**
-
-华文细黑：STHeiti Light [STXihei]
-
-华文黑体：STHeiti
-
-华文楷体：STKaiti
-
-华文宋体：STSong
-
-华文仿宋：STFangsong
-
-俪黑 Pro：LiHei Pro Medium
-
-俪宋 Pro：LiSong Pro Light
-
-标楷体：BiauKai
-
-苹果俪中黑：Apple LiGothic Medium
-
-苹果俪细宋：Apple LiSung Light
-
+**mac**<br>
+华文细黑：STHeiti Light [STXihei]<br>
+华文黑体：STHeiti<br>
+华文楷体：STKaiti<br>
+华文宋体：STSong<br>
+华文仿宋：STFangsong<br>
+俪黑 Pro：LiHei Pro Medium<br>
+俪宋 Pro：LiSong Pro Light<br>
+标楷体：BiauKai<br>
+苹果俪中黑：Apple LiGothic Medium<br>
+苹果俪细宋：Apple LiSung Light<br>
 </div>
 
 <div style="float: left;width: 45%;text-align:right;">
-**windows**
-
-新细明体：PMingLiU
-
-细明体：MingLiU
-
-标楷体：DFKai-SB
-
-黑体：SimHei
-
-宋体：SimSun
-
-新宋体：NSimSun
-
-仿宋：FangSong
-
-楷体：KaiTi
-
-仿宋_GB2312：FangSong_GB2312
-
-楷体_GB2312：KaiTi_GB2312
-
-微软正黑体：Microsoft JhengHei
-
-微软雅黑体：Microsoft YaHei
-
+**windows**<br>
+新细明体：PMingLiU<br>
+细明体：MingLiU<br>
+标楷体：DFKai-SB<br>
+黑体：SimHei<br>
+宋体：SimSun<br>
+新宋体：NSimSun<br>
+仿宋：FangSong<br>
+楷体：KaiTi<br>
+仿宋_GB2312：FangSong_GB2312<br>
+楷体_GB2312：KaiTi_GB2312<br>
+微软正黑体：Microsoft JhengHei<br>
+微软雅黑体：Microsoft YaHei<br>
 </div>
 
 常见中文字体名：http://www.cnblogs.com/code/articles/2381967.html
@@ -172,11 +149,11 @@ cgss2013  %>% select(s5a) %>%  sjplot(fun="frq")
 
 有多重方式，如使用haven包as_factor()命令将labelled列变成因子。
 ```{r,fig.height=2.5}
+par(family="SimSun")
 cgss2013  %>%
   filter(s5a>0) %>% select(s5a) %>% 
-  haven::as_factor() %>% droplevels() %>% 
-  ggplot(aes(x=s5a)) +geom_bar() + 
-  scale_x_discrete(drop=TRUE)
+  haven::as_factor() %>% droplevels() %>%  # plot()
+  qplot(x=s5a,data=.)  
 ```
 
 ## 将带标签的分类变量变为因子
@@ -187,7 +164,7 @@ cgss2013  %>%
 cgss2013  %>%
   select(s5a) %>% 
   sjmisc::to_label(drop.levels=TRUE) %>% 
-  sjplot(fun="frq",axis.title="调查地类型")
+  ggplot(aes(x=s5a)) + geom_bar() +xlab("社区类型")+ ylab("人数")
 ```
 
 ## 带缺失值标签的连续变量
@@ -200,26 +177,45 @@ cgss2013  %>%
   select(a3a) %>% 
   sjlabelled::zap_labels() %>%  # 如果没有这一句是啥效果
   qplot(x=a3a,data=.,binwidth=5)
+
 ```
 
-## R处理Stata等带标签中文数据的建议操作
+## R处理Stata/SPSS带标签中文数据的建议操作
 
 1、将用户自定义缺失值替换为NA（若需用到请先创建新变量存储）
-2、删除用户自定义缺失值标签(-1,-2,-3,99996，-99999之类的)
+2、删除用户自定义缺失值标签(-1,-2,-3,99996，99999之类的)
 3、将带取值标签的变量变为因子变量
 ```{r,warnings=FALSE}
+library(sjlabelled)
 cgss2013<-read_dta('../data/cgss2013.dta',encoding="gb18030") %>% 
-  mutate_all(funs(replace(., .==-1|.==-2|.==-3, NA))) %>%  # 替换缺失值
- sjlabelled::drop_labels()  %>%  # 删除未用到的取值标签，含自定义缺失值的标签
- sjmisc::to_label()  %>%  # 剩余的带标签的变量变为因子变量
- mutate_if(is.labelled, as.numeric) # 已经删除了缺失值标签的数字变量变为数字
+mutate_all(~ replace(., .==-1|.==-2|.==-3, NA)) %>%  # 替换缺失值 lambdas 函数
+drop_labels()  %>%  # 删除未用到的取值标签，含自定义缺失值的标签
+as_label()  %>%  # 剩余的带标签的变量变为因子变量
+mutate_if(is.labelled,~as.numeric(as.character(.)))  # 已经删除了缺失值标签的数字变量变为数字
 ```
 
-## 分析
+
+## 预处理后的分析:条形图 
+
+使用 [ggplot做条形图]("http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization")
+
 ```{r,fig.height=2.5,message=FALSE}
 cgss2013  %>%
-  qplot(x=a3a,data=.,binwidth=5)
+  qplot(x=s5a,data=.)
 ```
+
+## 预处理后的分析:条形图 
+
+继续使用sjplot
+
+```{r,fig.height=2.5,message=FALSE}
+cgss2013  %>%
+  select(s5a) %>% 
+  as_numeric() %>% 
+  plot_frq()
+```
+
+
 
 ## foreign包读入数据{#myImageP90}
 foreign包也可读入,其read.spss可设定reencode等参数。
@@ -245,7 +241,7 @@ cgss[cgss=="不知道/说不清"] <- NA
 cgss[cgss=="不适合"] <- NA
 cgss[cgss=="不适用"] <- NA
 cgss <- droplevels(cgss)
-ggplot(data=cgss,aes(x=s5a))+geom_bar() +theme(text=element_text(family="STKaiti"))
+ggplot(data=cgss,aes(x=s5a))+geom_bar() +theme(text=element_text(family="STKaiti")) #+ coord_flip()
 #SimSun、SimHei 、STHeiti、 STXihei 
 ```
 
@@ -319,7 +315,8 @@ table1 %>%
 ## 使用示例：作图
 ```{r}
 library(ggplot2)
-ggplot(table1, aes(year, cases)) + 
+table1 %>% mutate(rate=cases/population*10000) %>% 
+ggplot( aes(year, rate)) + 
   geom_line(aes(group = country), colour = "grey50") + 
   geom_point(aes(colour = country))
 ```
@@ -353,12 +350,25 @@ table2
 ##  长数据变宽数据
 使用`spread`命令，变量名key来自什么，取值value来自于什么
 ```{r}
-spread(table2, key = type, value = count)
+spread(table2, key = type, value = count)     # %>% 
+#  mutate(rate=cases/population*10000,
+#         year=as_factor(year)) %>%
+#  ggplot(aes(x=country,fill=year,y=rate)) +
+#        geom_bar(stat="identity",position="dodge")
 ```
 
 ## 长数据变宽数据{#myImageP90}
 
 ![](../pic/tidy3.png)
+
+
+##
+```{r}
+cgssp <- cgss2013 %>% 
+         select(id,a1102:a1715)
+
+```
+
 
 
 ## reshape 命令：Make a Panel Dataset
@@ -492,5 +502,32 @@ tidy4b <- table4b %>%
 left_join(tidy4a, tidy4b)
 ```
 
+## 两个数据合并:full join
+```{r}
+full_join(tidy4a, tidy4b)
+```
+
+## appand 案例
+
+dplyr::bind_rows() 可以设定 id,
+
+plyr::rbind.fill 
+
+```{r}
+hdata <- data.frame(
+  id = 1:10,
+  time = as.Date('2009-01-01') + 0:9,
+  Q3.2.1. = rnorm(10, 0, 1),
+  Q3.2.2. = rnorm(10, 0, 1)
+)
+gdata <- data.frame(
+  id = 11:20,
+  time = as.Date('2009-01-02') + 0:9,
+  Q3.4.1. = rnorm(10, 0, 1),
+  Q3.4.2. = rnorm(10, 0, 1)
+)
+alldata <- plyr::rbind.fill(hdata,gdata) 
+alldata <- dplyr::bind_rows(hdata,gdata) 
+```
 
 

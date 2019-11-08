@@ -98,6 +98,8 @@ http://r4ds.had.co.nz/relational-data.html
 
 
 提交作业5：将 http://r4ds.had.co.nz/tidy-data.html 中的命令转移到R scripts文件中，并完成其中的练习题。
+一道附加练习题，做出来了对期末考试和以后数据整理实战都有帮助：请根据发放给大家的cgss2013数据，汇总出受访家庭中包括受访者在内的全部家庭成员的年龄、性别、同吃同住、经济独立与否、已婚状况。CGSS访问的是18周岁以上人口，CGSS问卷回答者对CGSS受访户内同住成人的代表性如何，比如他们的平均年龄存在显著差异吗？
+
 
 
 ## 第7讲、探索：统计汇总与作图
@@ -114,6 +116,7 @@ http://r4ds.had.co.nz/data-visualisation.html
 
 课堂演示：利用基础命令和ggplot作图
 提交作业6：将 http://r4ds.had.co.nz/exploratory-data-analysis.html 中的命令转移到R scripts文件中，并完成其中的作业题。
+附加练习题：
 
 
 ## 第8讲、推论：统计检验
@@ -135,7 +138,7 @@ https://github.com/andrewpbray/infer
 
 课堂演示:如何用R来进行卡方检验、T检验、方差检验，模拟抽样分布
 
-提交作业7：运行 http://moderndive.com/10-hypo.html 中的命令，并完成其中的learning check
+提交作业7：运行 https://moderndive.com/9-hypothesis-testing.html 中的命令，并完成其中的learning check
 
 
 ## 第9讲、建模：一般线性回归、回归诊断与拓展
@@ -164,7 +167,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 统计模型示例：https://stats.idre.ucla.edu/other/dae/
 
-提交作业9：将http://r4ds.had.co.nz/model-basics.html 对应的rmd文件中的命令誊到R script上 运作一遍。
+提交作业9：未定。
 
 
 ## 第10讲、连通：网络分析
@@ -179,7 +182,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 课堂演示：网络数据的基本概念与描述
 
-提交作业10：选取相关演示命令的一部分或者全部（不少于100行），转换成为rmd文件。
+提交作业10：未定。
 
 
 ## 第11讲、邻里：空间分析
@@ -196,7 +199,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 课堂演示：空间数据的基本介绍与作图 
 
-提交作业11：选取相关演示命令的一部分或者全部（不少于300行），转换成为rmd文件。
+提交作业11：未定。
 
 
 ## 第12讲、语言：文本分析
@@ -214,7 +217,7 @@ python入门：http://note.youdao.com/noteshare?id=ab8f1f4e84519a6eb3881c8d7ca37
 
 课堂演示：基于R和python的文本分词、词云、主题、情感分析
 
-提交作业12：选取相关演示命令的一部分或者全部（不少于300行），转换成为rmd文件。
+提交作业12：未定。
 
 ## 第13讲、采集：爬虫与数据获取
 

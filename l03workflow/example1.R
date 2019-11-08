@@ -437,45 +437,9 @@ df <-sqlFetch(channel, "TrainList")
 head(df)
 
 
-
-## 数据的合并:基础命令 
-dataframe的合并
-```{r,eval = FALSE}
-rbind() ## 添加行
-cbind() ## 添加列 
-```
-当变量名不一致时，需要先统一变量名。如果一个数据有而另一个数据没有则需要先创建空变量
-
-```{r}
-#统一数据框的列数，方便使用rbind进行数据合并
-hvar <- names(hdata)
-gvar <- names(gdata)
-
-#最大的变量集
-allvar <- union(hvar,gvar)
-
-#缺的变量（没有考虑变量类型问题）
-nothvar <- setdiff(allvar, hvar)
-notgvar <- setdiff(allvar, gvar)
-
-#生成缺失变量
-ahvar <- setNames(data.frame(matrix(ncol = length(nothvar), nrow=dim(hdata) [1])),nothvar)
-agvar <- setNames(data.frame(matrix(ncol = length(notgvar), nrow=dim(gdata) [1])),notgvar)
-
-#用合并的方式将缺失变量放进去
-hdata <- cbind(hdata,ahvar)
-gdata <- cbind(gdata,agvar)
-
-rm(hvar,gvar,allvar,nothvar,notgvar,ahvar,agvar)
-##############
-#合并主干表格
-alldata <- rbind(hdata,gdata)
-```
-
-## 数据的纵向合并:append 
-
-或者使用下面的命令
- dplyr::bind_rows() 可以设定 id,
- plyr::rbind.fill 
-
+## 如果需要使用jupyter notebook
+## 可以在安装了anaconda之后，在cmd中 运行 R 然后安装下面的包
+install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'devtools', 'uuid', 'digest'))
+devtools::install_github('IRkernel/IRkernel')
+IRkernel::installspec()
 
