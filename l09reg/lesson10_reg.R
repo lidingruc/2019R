@@ -1,9 +1,9 @@
 # Project:    Code for lesson10
-# Date:       2017-11-22
+# Date:       2019-11-13
 # Author:     liding
 
 #-------------------------------------------------------------
-# 给一段散点提供一个最好的拟合直线：回归原理的介绍
+# 给一张散点提供一个最好的拟合直线：回归原理的介绍
 # 回归模型的可视化
 # 分类变量
 # 交互效应
@@ -21,7 +21,7 @@ if (!require(dplyr))install.packages('dplyr')
 if (!require(sjPlot))install.packages('sjPlot')
 if (!require(sjmisc))install.packages('sjmisc')
 if (!require(haven)) install.packages('haven')
-library(haven)
+
 library(tidyverse)
 library(stargazer)
 library(modelr)

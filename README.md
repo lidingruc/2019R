@@ -169,7 +169,12 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 统计模型示例：https://stats.idre.ucla.edu/other/dae/
 
-提交作业8：未定。
+提交作业8：研究第5、6章对应的Rscripts，解决其中的bug，将其中你认为不必要的备注删除，并给每段命令（不是每行）加上中文注解。作者试图让R输出的回归表好看一些，请研究https://strengejacke.github.io/sjPlot/articles/tab_model_estimates.html
+使用sj的包实现回归模型的简洁输出。
+
+https://moderndive.com/scripts/05-regression.R
+https://moderndive.com/scripts/06-multiple-regression.R
+
 
 
 ## 第10讲、连通：网络分析
