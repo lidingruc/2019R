@@ -141,7 +141,7 @@ https://github.com/andrewpbray/infer
 提交作业7：运行 https://moderndive.com/9-hypothesis-testing.html 中的命令，并完成其中的learning check
 
 
-## 第9讲、建模：一般线性回归、回归诊断与拓展
+## 第9讲、建模：线性回归、回归诊断与拓展
 
 课前预习：回归模型相关的内容
 
@@ -149,25 +149,32 @@ http://r4ds.had.co.nz/model-basics.html
 
 http://r4ds.had.co.nz/model-building.html
 
-http://moderndive.com/6-regression.html
+https://moderndive.com/5-regression.html
 
-http://moderndive.com/7-multiple-regression.html
+https://moderndive.com/6-multiple-regression.html
 
-http://moderndive.com/11-inference-for-regression.html
+https://moderndive.com/10-inference-for-regression.html
 
 交互效应：http://faculty.smu.edu/kyler/courses/7312/interact.pdf
 
 回归诊断：https://socialsciences.mcmaster.ca/jfox/Courses/Brazil-2009/index.html
 
+回归诊断：jfox随书材料 https://socialsciences.mcmaster.ca/jfox/Books/RegressionDiagnostics/index.html
+
 GLM模型：https://socialsciences.mcmaster.ca/jfox/Courses/SPIDA/index.html
 
 SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index.html
 
-高级模型与编程： https://socialsciences.mcmaster.ca/jfox/Courses/R/Peking/index.html
+高级模型与编程： https://socialsciences.mcmaster.ca/jfox/
 
 统计模型示例：https://stats.idre.ucla.edu/other/dae/
 
-提交作业9：未定。
+提交作业8：研究第5、6章对应的Rscripts，解决其中的bug，将其中你认为不必要的备注删除，并给每段命令（不是每行）加上中文注解。作者试图让R输出的回归表好看一些，请研究https://strengejacke.github.io/sjPlot/articles/tab_model_estimates.html
+使用sj的包实现回归模型的简洁输出。
+
+https://moderndive.com/scripts/05-regression.R
+https://moderndive.com/scripts/06-multiple-regression.R
+
 
 
 ## 第10讲、连通：网络分析
@@ -182,7 +189,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 课堂演示：网络数据的基本概念与描述
 
-提交作业10：未定。
+提交作业9：未定。
 
 
 ## 第11讲、邻里：空间分析
@@ -199,7 +206,7 @@ SEM模型：https://socialsciences.mcmaster.ca/jfox/Courses/R/IQSBarcelona/index
 
 课堂演示：空间数据的基本介绍与作图 
 
-提交作业11：未定。
+提交作业10：未定。
 
 
 ## 第12讲、语言：文本分析
@@ -217,7 +224,7 @@ python入门：http://note.youdao.com/noteshare?id=ab8f1f4e84519a6eb3881c8d7ca37
 
 课堂演示：基于R和python的文本分词、词云、主题、情感分析
 
-提交作业12：未定。
+提交作业11：未定。
 
 ## 第13讲、采集：爬虫与数据获取
 
@@ -231,5 +238,5 @@ python爬虫：http://note.youdao.com/noteshare?id=aa3b31703ff6468eb2c884494e11b
 
 python爬虫：http://note.youdao.com/noteshare?id=8d72a2741f381b292d40c7583047c891
 
-提交作业13：尝试爬取北大未名BBS所有学生社团版面开版时间
+提交作业12：尝试爬取北大未名BBS所有学生社团版面开版时间
 https://bbs.pku.edu.cn/v2/board.php?bid=682
