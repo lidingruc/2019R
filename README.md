@@ -189,7 +189,8 @@ https://moderndive.com/scripts/06-multiple-regression.R
 
 课堂演示：网络数据的基本概念与描述
 
-提交作业9：未定。
+提交作业9：研究课堂演示的R命令，对最后的微博数据进行探索性分析，利用前面的示例命令制作你觉得有意义的网络图。
+附加练习：熟悉python进行网络分析的讲义（王成军老师github）http://computational-class.github.io/cjc/index.html
 
 
 ## 第11讲、邻里：空间分析

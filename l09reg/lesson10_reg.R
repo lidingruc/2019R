@@ -228,6 +228,12 @@ ggplot(sim3, aes(x1, resid, colour = x2)) +
 mod1 <- lm(y ~ x1 + x2, data = sim4)
 mod2 <- lm(y ~ x1 * x2, data = sim4)
 
+# to reproduce the function of the “lincom” Stata command 
+library(multcomp)
+names(coef(mod2))
+summary(multcomp::glht(mod2, linfct = c("x1 + x1:x2 - x2= 0")))
+# alternative = c("two.sided", "less", "greater")
+
 grid <- sim4 %>% 
   data_grid(
     x1 = seq_range(x1, 5), 
@@ -315,6 +321,8 @@ df <- tribble(
 
 mod <- lm(y ~ x, data = df)
 
+#
+test()
 # 排除缺失值，
 mod <- lm(y ~ x, data = df, na.action = na.exclude)
 nobs(mod)
