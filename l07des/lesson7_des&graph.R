@@ -115,6 +115,7 @@ cgss2013  %>%
   dplyr::select(s5a,a2) %>% 
   #as_numeric() %>% 
   sjPlot::sjplot(fun="grpfrq")
+# 改变图例标题+guides(fill=guide_legend(title="New Legend Title"))
 
 #C.2 分组条形图：组内百分比
 cgss2013  %>%

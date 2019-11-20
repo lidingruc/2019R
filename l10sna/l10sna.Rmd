@@ -1,0 +1,182 @@
+---
+title: "社会网络分析与可视化"
+author: "李丁"
+date: "2019年11月20日"
+output:
+  ioslides_presentation:
+    highlight: pygments
+    widescreen: yes
+    css: ../lec.css
+---
+
+## 内容提纲
+- 社会网络分析简介
+
+- 社会网数据的基本概念
+    - 关系类型
+    - 网络类型
+    - 网络表示方式
+- 社会网数据的构成
+    - 边数据
+    - 点数据
+- 可视化的目的与方式
+
+## 社会网络分析简介：理解框架{#myImageP70}
+![](../pic/snacore.png) 
+
+## 社会网络分析简介：理论基础
+
+Social/Graph theories
+
+    – Two-step flow theory
+    – Three degree of influence 
+    – Social balance
+    – Social status
+  
+Graph theories
+
+    – Graph categories
+    – Network measures
+    – Network generation model
+  
+Deep learning algorithm
+
+    – RNN
+    – LSTM
+    – Attention mechanism 
+    – CNN
+
+## 社会网络分析简介：数据获取{#myImageP70}
+
+![](pic/1.png) 
+
+
+## 社会网络分析简介：呈现方式{#myImageP70}
+
+![](../pic/sn呈现方式.png) 
+
+
+## 基本概念：关系类型{#myImageP70}
+
+![](pic/2.png) 
+
+## 基本概念：图类型{#myImageP70}
+
++ 有向/无向 Directed/Undirected/Mixed graphs 
+
+    – Directed edges: friend relationships
+    – Undirected edges: follow relationships
+
++ 简单 Simple graphs
+
+    – Only one edge could exist between any pair of nodes
+
++ 复杂 Multigraphs
+
+    – Multiple edges exist between two nodes: two users can be friends and, at the same time, colleagues, group members, or other relation
+
++ 有价 Weighted graphs
+
+    – Weight: the number of links between two web sites
+    
+    – Signed graph, e.g.，A+edge(friend),a-edge(foe); A+edge(highersocialstatus),a-edge(lowersocialstatus)
+
+
+## 网络的矩阵表示{#myImageP70}
+单模网与双模网
+
+![](pic/3.png) 
+
+
+## 网络的矩阵表示{#myImageP70}
+对称网
+
+![](pic/4.png) 
+
+## 网络的矩阵表示{#myImageP70}
+有价网
+
+![](pic/5.png) 
+<br>
+<br>
+
+## 网络的矩阵表示{#myImageP70}
+附属网
+
+![](pic/6.png) 
+<br>
+<br>
+
+## 网络的矩阵表示{#myImageP70}
+有向网、表示方式2
+
+![](pic/7.png) 
+<br>
+<br>
+
+## 网络的矩阵表示{#myImageP50}
+所有社会网络内部结构都可以用邻接矩阵表示
+
+![](pic/8.png) 
+<br>
+<br>
+
+## 数据结构{#myImageP70}
+edgelist
+
+![](pic/9.png) 
+<br>
+<br>
+
+## 数据结构：{#myImageP70}
+nodelist
+
+![](pic/10.png) 
+<br>
+<br>
+<br>
+<br>
+
+## 可视化-类型 {#myImageP70}
+![](pic/12.png) 
+<br>
+<br>
+<br>
+<br>
+
+## 可视化-元素 {#myImageP70}
+
+![](pic/13.png) 
+
+
+## 可视化-布局 {#myImageP70}
+
+![](pic/14.png) 
+
+
+## 网络统计特性
+
+社交网络模型本质上是一个由节点（人）和边（社交关系）组成的图。
+
+**度（Degree）**：节点的度定义为与该节点相连的边的数目。在有向图中，所有指向某节点的边的数量叫作该节点的入度，所有从该节点出发指向别的节点的边的数量叫作该节点的出度。网络平均度反应了网络的疏密程度，而通过度分布则可以刻画不同节点的重要性。
+
+**网络密度（Density）**：网络密度可以用于刻画节点间相互连边的密集程度，定义为网络中实际存在边数与可容纳边数上限的比值，常用来测量社交网络中社交关系的密集程度及演化趋势。
+
+**聚类系数（Clustering Coefficient）** ：用于描述网络中与同一节点相连的节点间也互为相邻节点的程度。其用于刻画社交网络中一个人朋友们之间也互相是朋友的概率，反应了社交网络中的聚集性。
+
+**介数（Betweeness）**：为图中某节点承载整个图所有最短路径的数量，通常用来评价节点的重要程度，比如在连接不同社群之间的中介节点的介数相对于其他节点来说会非常大，也体现了其在社交网络信息传递中的重要程度。
+
+## 网络特性
+
+**小世界现象**：小世界现象是指地理位置相距遥远的人可能具有较短的社会关系间隔。早在1967年，哈佛大学心理学教授 Stanley Milgram 通过一个信件投递实验，归纳并提出了“六度分割理论（Six Degrees of Separation）”,  即任意两个都可通过平均五个人熟人相关联起来。1998年，Duncan Watts 和 Steven Strogatz 在《自然》杂志上发表了里程碑式的文章《Collective Dynamics of “Small-World” Networks》，该文章正式提出了小世界网络的概念并建立了小世界模型。
+
+小世界现象在在线社交网络中得到了很好地验证，根据2011年 Facebook 数据分析小组的报告， Facebook 约7.2亿用户中任意两个用户间的平均路径长度仅为4.74，而这一指标在推特中为4.67。可以说，在五步之内，任何两个网络上的个体都可以互相连接。
+
+
+
+**无标度特性**：大多数真实的大规模社交网络都存在着大多数节点有少量边，少数节点有大量边的特点，其网络缺乏一个统一的衡量尺度而呈现出异质性，我们将这种节点度分布不存在有限衡量分布范围的性质称为无标度。无标度网络表现出来的度分布特征为幂律分布，这就是此类网络的无标度特性。
+
+
+
+
+

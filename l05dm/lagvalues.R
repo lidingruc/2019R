@@ -7,8 +7,8 @@ data <- data.table(time =c(1:3,1:4),groups = c(rep(c("b","a"),c(3,4))),value = r
 # 单个变量
 data[, lag.value:=c(NA, value[-.N]), by=groups]
 data
-#多个变量
 
+#多个变量
 nm1 <- grep("^value", colnames(data), value=TRUE)
 nm2 <- paste("lag", nm1, sep=".")
 
@@ -37,4 +37,5 @@ data
 data$lag.value <- c(NA, data$value[-nrow(data)])
 data$lag.value[which(!duplicated(data$groups))] <- NA
 data
+
 

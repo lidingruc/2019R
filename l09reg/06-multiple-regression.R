@@ -99,6 +99,9 @@ get_regression_table(lifeExp_model) %>%
                 latex_options = c("hold_position"))
 
 
+lifeExp_model_interaction <- lm(lifeExp ~ continent*continent, data = gapminder2007)
+tab_model(lifeExp_model_interaction)
+
 ## ---- eval=FALSE---------------------------------------------------------
 ## # Fit regression model:
 ## score_model_interaction <- lm(score ~ age * gender, data = evals_ch7)
@@ -107,6 +110,7 @@ get_regression_table(lifeExp_model) %>%
 
 ## ----regtable-interaction, echo=FALSE------------------------------------
 score_model_interaction <- lm(score ~ age * gender, data = evals_ch7)
+
 get_regression_table(score_model_interaction) %>% 
   knitr::kable(
     digits = 3,
@@ -115,6 +119,9 @@ get_regression_table(score_model_interaction) %>%
   ) %>% 
   kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
                 latex_options = c("hold_position"))
+
+
+#tab_model(score_model_interaction)
 
 
 ## ----interaction-summary, echo=FALSE-------------------------------------
@@ -167,6 +174,8 @@ get_regression_table(score_model_parallel_slopes) %>%
   kable_styling(font_size = ifelse(knitr:::is_latex_output(), 10, 16),
                 latex_options = c("hold_position"))
 
+#
+tab_model(score_model_parallel_slopes)
 
 ## ----parallel-slopes-summary, echo=FALSE---------------------------------
 options(digits = 4)
@@ -191,10 +200,11 @@ interaction_plot <- ggplot(evals_ch7, aes(x = age, y = score, color = gender), s
   labs(x = "Age", y = "Teaching Score", title = "Interaction model") +
   geom_smooth(method = "lm", se = FALSE) +
   theme(legend.position = "none")
-parallel_slopes_plot <- gg_parallel_slopes(y = "score", 
-                                           num_x = "age", 
-                                           cat_x = "gender", 
-                                           data = evals_ch7) +
+
+parallel_slopes_plot <- ggplot(evals_ch7,aes(y = score, 
+                                           x = age, 
+                                           color = gender)) +
+  geom_parallel_slopes(se=FALSE) +
   labs(x = "Age", y = "Teaching Score", title = "Parallel slopes model") +
   theme(axis.title.y = element_blank())
 
