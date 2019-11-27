@@ -207,7 +207,9 @@ https://moderndive.com/scripts/06-multiple-regression.R
 
 课堂演示：空间数据的基本介绍与作图 
 
-提交作业10：未定。
+提交作业10：自学spatial.R中的示例命令，能学多少学多少。特别掌握383-475行合并地图和属性数据，制作地图部分。从http://www.systemicpeace.org/inscr/p4v2018.xls下载最新的数据，选择2018年的案例，用其中的polity2变量制作2018年全球民主化指数图。数据说明手册在http://www.systemicpeace.org/inscr/p4manualv2018.pdf。更多数据相关的资料见http://www.systemicpeace.org/inscrdata.html。【说明：请批判性地认识西方学者建构的指标体系】
+关于中国地图的制作，请参考xtend文件夹中chinamap.r文件
+
 
 
 ## 第12讲、语言：文本分析
