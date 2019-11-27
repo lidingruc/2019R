@@ -1396,6 +1396,8 @@ title("新闻网络图", family="STSong", cex.main=2)
 
 # 微博数据的例子
 # https://www.cnblogs.com/yangykaifa/p/6886289.html
+# 数据来自
+# https://archive.ics.uci.edu/ml/machine-learning-databases/00323/microblogPCU.zip
 library(readr)
 follower_followee<-read_csv('/Users/liding/ptemp/microblogPCU/follower_followee.csv')
 follower_followee_part<-follower_followee[1:1000,]
@@ -1406,3 +1408,4 @@ plot(gg,
      edge.arrow.mode='-',  ##不使用箭头
      vertex.size = 5       ##设置结点圆的大小
 )
+
