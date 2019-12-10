@@ -415,14 +415,6 @@ setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
 map <- readShapePoly("world",IDvar="MAP_CCODE",proj4string=CRS("+proj=eqc +lon_0=90E"))          ## Equidistant Cylindrical
 summary(map)
 
-#新的读法 
-map <-rgdal::readOGR ("world.shp",p4s="+proj=eqc +lon_0=90E")  
-summary(map)
-
-#读入后为数据表
-map <-sf::st_read("world.shp") 
-summary(map)
-
 ## Plot the study region
 
 par(mar=rep(0,4))
@@ -486,13 +478,21 @@ library(sf)
 library(ggplot2)
 library(maptools)
 setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
+
+map <-read_shape("world.shp")
+
 ## 第一步：读入地图
 ##方法1 Let's open a world map Shapefile
 map <-rgdal::readOGR ("world.shp",p4s="+proj=eqc +lon_0=90E")  
 summary(map)
 
+
+#dum = fortify(map, region = "CCODE")
+#ggplot(dum, aes(x = long, y = lat)) + geom_path(aes(group = group))
+
 ##方法2
 map <-sf::st_read("world.shp") 
+summary(map)
 #此种方法读进来可以直接作图
 ggplot(map) +
   geom_sf()  +
@@ -513,7 +513,7 @@ names(polity)
 names(polity)[2] <- "CCODE" ## 统一为大写，merge命令不需要统一
 
 m_ccode <- as.data.frame(map)
-# m_ccode <- map@data  # 这样也可以
+#m_ccode <- map@data  # 这样也可以
 
 #第三步：合并外部属性
 #方法1：使用merge函数会改变数据顺序
@@ -556,18 +556,42 @@ dev.off()
 ## 使用gglot2
 
 library(tidyverse)
-map2 %>%
+map3 <- map2 %>%
   st_as_sf(map2) %>%
   mutate(area = st_area(geometry))%>%
   mutate(COUNTRY = COUNTRY%>% forcats::fct_reorder(-area)) %>%
   ggplot() +
   geom_sf(aes(fill = polity2))
 
-# fortify的方法 再研究
-#map2@data$id <- 1:nrow(map2@data)
-#map2.fort <- fortify(map2, region="id")
-#ggplot(map2.fort, aes(x = long, y = lat, group = id)) + 
-#geom_polygon(colour='black', fill='white')
+
+
+## 使用ggplot2的方法2
+# fortify得到地理属性数据
+map@data$id <- rownames(map@data)
+mapdata <- fortify(map, region="id")
+# 将外部数据与di
+mergdata <- merge(x=map@data, y=polity, by.x="CCODE", by.y="CCODE", all.x=T, all.y=F)
+
+#属性数据与地理数据合并
+mapDF <- merge(mapdata,mergdata, by = "id")
+#group 变量不可少
+ggplot(mapdata, aes(x = long, y = lat) )+
+   geom_path(aes(group = group))
+
+#依据关注变量作图
+ggplot(mapDF, aes(x = long, y = lat,group = group,fill=polity2) )+
+  geom_polygon()  +
+  geom_path(color = "grey") +
+  coord_equal() +
+  theme(legend.position = "none", title = element_blank(),
+        axis.text = element_blank())
+
+# data + mapdata 分开
+ggplot(mergdata, aes(map_id =id )) +
+  geom_map(aes(fill = polity2), map =mapdata ) +
+  coord_equal()+
+  expand_limits(x = mapdata$long, y = mapdata$lat)
+
 
 ####################################################
 ####################################################
@@ -667,7 +691,7 @@ lm1 <- localmoran(data$Bush_pct, listw=W_cont_el_mat, zero.policy=T)
 data$lm1 <- abs(lm1[,4]) ## Extract z-scores
 
 lm.palette <- colorRampPalette(c("white","orange", "red"), space = "rgb")
-# proj4string(data) <- CRS("+proj=lcc")
+proj4string(data) <- CRS("+proj=lcc")
 spplot(data, zcol="lm1", col.regions=lm.palette(20), main="Local Moran's I (|z| scores)", pretty=T)
 
 
