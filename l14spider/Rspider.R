@@ -85,8 +85,10 @@ response<-getURL(
 
 class(response) # getURL返回的是文本
 # 两种解析，相同输入，不同输出。
-doc <-xml2::read_html(response, encoding = "utf-8")
-doc <- XML::htmlParse(html,encoding = "utf-8")
+doc <- xml2::read_html(response, encoding = "utf-8") 
+xml2::xml_find_all(doc,"//h4") 
+
+doc <- XML::htmlParse(response,encoding = "utf-8")
 XML::getNodeSet(doc, path ="//h4") #
 
 
@@ -152,13 +154,25 @@ getCurlInfo(cH)[["cookielist"]]
 
 #已经登录。获取主页找到找到自己的用户名和id
 response <- getURL("http://www.renren.com", curl=cH, .encoding="gbk")
-# 写出成为文本文件，利用正则表达式提取出用户ID
+#1 直接用字符函数寻找主页的姓名和id
+str_locate(response,"ruid")
+str_locate(response,"title")
+str_sub(response,str_locate(response,"ruid")[1],str_locate(response,"ruid")[1]+15) # 然后可以进一步修改参数得到ruid
+str_sub(response,str_locate(response,"ruid")[1]+6,str_locate(response,"ruid")[1]+14) 
+
+str_sub(response,str_locate(response,"title")[1],str_locate(response,"title")[1]+15)
+
+#2 利用网页解析来查找
+doc <- xml2::read_html(response, encoding = "utf-8") 
+xml2::xml_find_all(doc,"//title") 
+
+#3 也写出成为文本文件，每一行文本作为一条记录
+# 利用正则表达式提取出用户ID
 write(response , "temp.txt")
 doc <- readLines("temp.txt", encoding="UTF-8")
 # 移除临时文件
 file.remove("temp.txt")
 rm(response )
-
 hh <- doc[grep("ruid", doc)]
 hh <- gsub("[^0-9]", "", hh)
 uid <- hh
@@ -169,11 +183,11 @@ response <- getURL(thisurl, curl=cH, .encoding="gbk")
 
 cat(response,file="a.txt")
 # write(response , "temp.txt") # 调试时，可以写出去看源码（通常自己编写时需要分析html源码）
+file.remove("a.txt")
 
 doc <- XML::htmlParse(response)
 doc["//title"]
 doc["//div[@class='info']//a"]
-
 
 
 #########################
@@ -202,7 +216,7 @@ response <- getURL(URL,httpheader=header,.encoding="UTF-8")
 write(response , "temp.txt")
 
 # 也确实提取不出内容
-response%>% htmlParse(encoding ="UTF-8") %>% readHTMLTable(header=TRUE)
+response%>% XML::htmlParse(encoding ="UTF-8") %>% XML::readHTMLTable(header=TRUE)
 
 ###########
 ##rvest直接获取也是不行的，里面没有数据
@@ -215,6 +229,7 @@ doc <- content(response,"text")
 write(doc , "temp.txt")
 # 只能找到表头
 URL %>%  read_html(encoding ="UTF-8") %>% html_table(header=TRUE) %>% `[[`(1)  
+file.remove("temp.txt")
 
 ###########
 ## rdom包
@@ -228,7 +243,7 @@ library(tidyverse)
 # 北京市空气质量
 URL <- URL%>% xml2::url_escape(reserved ="][!$&'()*+,;=:/?@#") 
 
-tbl <- rdom(URL) %>% readHTMLTable(header=TRUE) %>% `[[`(1)
+tbl <- rdom(URL) %>% XML::readHTMLTable(header=TRUE) %>% `[[`(1)
 # names(tbl) <- names(tbl) %>% stri_conv(from="utf-8") # 变量名如果乱码
 DT::datatable(tbl)
 
@@ -262,7 +277,9 @@ library("xml2")
 library("XML")
 library("RSelenium") 
 
-pJS <- phantom()
+pJS <- rsDriver()
+#pJS <- wdman::phantomjs()
+
 remDr <- remoteDriver(browserName = "phantomjs") 
 
 remDr$open() #访问登录的页面
@@ -276,13 +293,16 @@ mytable<-remDr$getPageSource()[[1]] %>% read_html(encoding ="UTF-8") %>% html_ta
 #关闭remoteDriver对象
 remDr$close()
 
-pJS$stop()
+pJS[["server"]]$stop()
 
 #########################
 # 示例1.6：Rselenium+ phantomjs 
 # 渲染后抓取动态网页 
 # 案例来自 https://m.hellobi.com/post/10742
 # 2018年1月1日测试可行，进行了修改
+# 2019年12月10日测试 修改了抓取间隔时间为1.5-2.5秒
+# 如果被封则跳出，能够抓取一定数量的页面
+# 代码仅用于学习研究，请勿频繁使用
 #########################
 library("magrittr")
 library("xml2")
@@ -350,18 +370,21 @@ myresult<-function(remDr,url){
     #将本次收集的数据写入之前创建的数据框
     myresult<-rbind(myresult,mydata)
     #系统休眠0.5~1.5秒
-    Sys.sleep(runif(1,0.5,1.5))
+    Sys.sleep(runif(1,1.5,2.5))
     #判断页面是否到尾部
-    if ( pagecontent %>% read_html() %>% xml_find_all('//div[@class="page-number"]/span[1]') %>% xml_text() !="30"){
-      #如果页面未到尾部，则点击下一页，注意翻页命令
-      remDr$findElement('xpath','//div[@class="pager_container"]/a[last()]')$clickElement()
-      #但因当前任务进度
-      cat(sprintf("第【%d】页抓取成功",i),sep = "\n")
-    } else {
-      #如果页面到尾部则跳出while循环
-      break
+    if ( pagecontent %>% read_html() %>% xml_find_all('//div[@class="page-number"]/span[1]') %>% length()==0){
+    break
+      } else if ( pagecontent %>% read_html() %>% xml_find_all('//div[@class="page-number"]/span[1]') %>% xml_text() !="30"){
+        #如果页面未到尾部，则点击下一页，注意翻页命令
+        remDr$findElement('xpath','//div[@class="pager_container"]/a[last()]')$clickElement()
+        #但因当前任务进度
+        cat(sprintf("第【%d】页抓取成功",i),sep = "\n")
+      } else {
+        #如果页面到尾部则跳出while循环
+        break
+      }
     }
-  }
+
   #跳出循环后关闭remDr服务窗口
   remDr$close() 
   #但因全局任务状态（也即任务结束）
@@ -657,8 +680,6 @@ for (i in 1:20){
  hrefs <- c(hrefs, dat$Paintings[[i]]$paintingUrl[1])
 }
 # 再嵌套一个循环即可获得所有详情页链接
-
-
 
 
 #########################

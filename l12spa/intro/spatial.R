@@ -479,8 +479,6 @@ library(ggplot2)
 library(maptools)
 setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
 
-map <-read_shape("world.shp")
-
 ## 第一步：读入地图
 ##方法1 Let's open a world map Shapefile
 map <-rgdal::readOGR ("world.shp",p4s="+proj=eqc +lon_0=90E")  
