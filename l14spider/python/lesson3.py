@@ -6,18 +6,18 @@ crawler
 
 import requests #美味的汤~~来自《爱丽丝梦游仙境》同名诗歌。化平淡为神奇（通过定位HTML标签来组织复杂的网络信息）
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
+#from fake_useragent import UserAgent
 import time
 
 import random
-# 小猪短租强化了反爬虫技术，有时候需要使用报头信息和cookie才能登陆，请更新下面的浏览器和cookie信息
+# 小猪短租强化了反爬虫技术，需要使用报头信息和cookie才能获取网页，请更新下面的浏览器和cookie信息
 # 下面加入了num_retries这个参数，经过测试网络正常一般最多retry一次就能获得结果
 
 def getUrl(url,num_retries = 5):
     #ua = UserAgent()
     #headers = {'User-Agent':ua.random}
     user_agent ="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
-    cookie="abtest_ABTest4SearchDate=b; Hm_lvt_92e8bc890f374994dd570aa15afc99e1=1576020024; gr_user_id=5e132793-9dc1-40d6-b68a-847c36532bf2; 59a81cc7d8c04307ba183d331c373ef6_gr_last_sent_cs1=N%2FA; _pykey_=ca034ee9-7b49-59d6-a7a3-0d102adbf69b; grwng_uid=41a4c50c-e582-4ee9-8c21-41800e1f0191; xz_guid_4se=26b41c29-8571-4a23-b9bf-c4c75e3d1b39; 59a81cc7d8c04307ba183d331c373ef6_gr_session_id=56fca658-a3c1-475e-9672-c8fe0b93e2d7; 59a81cc7d8c04307ba183d331c373ef6_gr_last_sent_sid_with_cs1=56fca658-a3c1-475e-9672-c8fe0b93e2d7; 59a81cc7d8c04307ba183d331c373ef6_gr_session_id_56fca658-a3c1-475e-9672-c8fe0b93e2d7=true; xzuuid=035821b3; rule_math=2jolrwftsg4; Hm_lpvt_92e8bc890f374994dd570aa15afc99e1=1576023179"
+    cookie="TY_SESSION_ID=7b3b4fae-1c77-45ac-917b-1c0936182863; _uab_collina=157602002458987353421574; abtest_ABTest4SearchDate=b; Hm_lvt_92e8bc890f374994dd570aa15afc99e1=1576020024; gr_user_id=5e132793-9dc1-40d6-b68a-847c36532bf2; 59a81cc7d8c04307ba183d331c373ef6_gr_last_sent_cs1=N%2FA; _pykey_=ca034ee9-7b49-59d6-a7a3-0d102adbf69b; grwng_uid=41a4c50c-e582-4ee9-8c21-41800e1f0191; xz_guid_4se=26b41c29-8571-4a23-b9bf-c4c75e3d1b39; TY_SESSION_ID=c98b411e-488a-4865-a692-ebe685525404; startDate=2019-12-20; endDate=2020-01-13; rule_math=zlpxp2xxv5h; 59a81cc7d8c04307ba183d331c373ef6_gr_session_id=6cca025f-9bc5-4f1f-81b0-c5d4be4daff5; 59a81cc7d8c04307ba183d331c373ef6_gr_last_sent_sid_with_cs1=6cca025f-9bc5-4f1f-81b0-c5d4be4daff5; 59a81cc7d8c04307ba183d331c373ef6_gr_session_id_6cca025f-9bc5-4f1f-81b0-c5d4be4daff5=true; Hm_lpvt_92e8bc890f374994dd570aa15afc99e1=1576042712"
     headers={"User-Agent":user_agent,"Cookie":cookie}
     try:
         print(url)
@@ -174,4 +174,6 @@ def get_data(page_link):
         time.sleep(random.random()*3)
 
 get_data(page_link)
+
+
 

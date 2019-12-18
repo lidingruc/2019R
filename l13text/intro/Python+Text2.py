@@ -46,14 +46,14 @@ for w in words:
 # In[60]:
 
 # stopwords = [ line.rstrip().decode('ANSI').encode('utf-8') for line in open('/Users/liding/E/Bdata/Course/6TextasData/TextasdatachineseStopWords.txt') ]
-with open('/Users/liding/E/Bdata/Course/6TextasData/chineseStopWords.txt',encoding="gbk") as f:
+with open('/Users/liding/E/Bdata/2019R/l13text/intro/data/chineseStopWords.txt',encoding="gbk") as f:
     stopwords = f.read().splitlines()
     
 
 
 # In[62]:
 
-report= pd.read_csv('samgov.csv',encoding="gbk")
+report= pd.read_csv('/Users/liding/E/Bdata/2019R/l13text/intro/data/samgov.csv',encoding="gbk")
 report.head()
 
 
@@ -94,7 +94,7 @@ vocab = vectorizer.get_feature_names()
 
 # In[68]:
 
-lda = LatentDirichletAllocation(n_topics=20, max_iter=5,)
+lda = LatentDirichletAllocation(n_components=20, max_iter=5,)
 l = lda.fit(dtm)
 data = pd.DataFrame(l.components_)
 def print_top_words(model, feature_names, n_top_words):

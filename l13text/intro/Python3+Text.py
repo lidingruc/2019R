@@ -194,7 +194,7 @@ import numpy as np
 
 # In[63]:
 
-os.chdir(r"/Users/liding/E/Bdata/Course/6TextasData/")
+os.chdir(r"/Users/liding/E/Bdata/2019R/l13text/intro/data/")
 
 
 # In[41]:
@@ -212,7 +212,7 @@ len(report) #length of the string
 
 # In[62]:
 
-report2 = pd.read_excel('/Users/liding/E/Bdata/Course/6TextasData/sample2.xlsx') # iris数据
+report2 = pd.read_excel('/Users/liding/E/Bdata/2019R/l13text/intro/data/sample2.xlsx') # iris数据
 report2.head()
 
 
@@ -259,8 +259,10 @@ from sklearn.decomposition import NMF, LatentDirichletAllocation
 import jieba
 import matplotlib.pyplot as plt
 get_ipython().magic('matplotlib inline')
-
+# 一个高效的中文词法分析工具包
 # 清华大学的lac http://thulac.thunlp.org/
+#sudo pip install thulac
+#通过 import thulac 来引用
 
 
 # In[45]:
@@ -460,7 +462,7 @@ print("done in %0.3fs." % (time() - t0))
 
 print("Fitting LDA models with tf features, n_features=%d..."
         % (n_features))
-lda = LatentDirichletAllocation(n_topics=n_topics, max_iter=5,
+lda = LatentDirichletAllocation(n_components=n_topics, max_iter=5,
 learning_method='online', learning_offset=50.,random_state=0)
 t0 = time()
 lda.fit(tf)

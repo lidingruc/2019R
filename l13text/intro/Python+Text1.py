@@ -5,6 +5,7 @@
 # 
 # ## Wednesday 24th August 2016
 # ## Tianguang Meng
+# ## Ding Li 12-18-2019
 
 # - [1 Input Text](#1-Input-Text)
 # - [2 Text Detection](#2-Text-Detection)
@@ -75,7 +76,7 @@ print("云南去年5800余名公职人员受处分\n国务院成立山东疫苗�
 
 # In[16]:
 
-"White"+" "+"Rabbit"
+"White" + " " + "Rabbit"
 
 
 # In[17]:
@@ -187,7 +188,7 @@ import jieba.posseg as pseg
 
 # In[8]:
 
-report= pd.read_csv('samgov.csv',encoding="gbk")
+report= pd.read_csv('/Users/liding/E/Bdata/2019R/l13text/intro/data/samgov.csv',encoding="gbk")
 report.head()
 
 
@@ -208,7 +209,7 @@ len(report) #length of the string
 
 # In[18]:
 
-report2 = pd.read_excel('/Users/liding/E/Bdata/Course/6TextasData/sample2.xlsx')
+report2 = pd.read_excel('/Users/liding/E/Bdata/2019R/l13text/intro/data/sample2.xlsx')
 report2.head()
 
 
