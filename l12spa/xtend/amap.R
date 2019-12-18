@@ -38,8 +38,7 @@ ggplot(states_map, aes(x=long,y=lat,group=group)) +
   labs(title = "USA Map")
 
 #中国地图,93 95
-# if (!require('mapdata')) install.packages("mapdata")
-library(mapdata)
+if (!require('mapdata')) install.packages("mapdata")
 china <- map_data("china")
 
 map("china", col = "red4", panel.first = grid())
@@ -49,6 +48,7 @@ title("China Map")
 ggplot(china, aes(x=long,y=lat,group=group)) +
   geom_polygon(fill="white",colour="black") +
   labs(title = "china Map")
+
 # 世界地图
 # 世界地图数据
 world_map <- map_data("world")
@@ -173,6 +173,51 @@ theme_clean <- function(base_size=12){
   )
 }
 p + theme_clean()
+
+
+
+#https://gis.stackexchange.com/questions/144356/how-to-read-arcgis-files-in-r 
+
+require(rgdal)
+require(ggplot2)
+require(rgeos)
+require(ggmap)
+require(RColorBrewer)
+
+# Read shapefile using OGR
+shp = "/Users/liding/E/Bdata/2019R/l12spa/intro/world.shp"
+
+
+myshp = readOGR(shp, layer = basename(strsplit(shp, "\\.")[[1]])[1]) # This is a fancy way of being lazy, so I do not need to type the layer name in
+proj4string(myshp) <- CRS("+proj=longlat +datum=WGS84")
+# Convert to lat long
+#myshp_proj = spTransform(myshp, CRS("+proj=longlat +datum=WGS84"))
+
+# Find polygon centroid (This centers the map)
+#google 地图国内登录不了
+centroid = gCentroid(myshp_proj)
+register_google(key = "AIzaSyDzbTtAijGTrGdYxbU3FGuxnwwO3Vkmixg")
+# Get the Google basemap
+mapImageData1 = get_map(location = c(lon = centroid$x, lat = centroid$y),
+                        color = "color",
+                        source = "google",
+                        maptype = "satellite",
+                        zoom = 1)
+
+# Convert shapefile to format ggmap can work with
+polys = fortify(myshp_proj)
+
+# Define the color scheme for mapping shp
+colors = brewer.pal(9, "OrRd")
+
+# create the final map
+ggmap(mapImageData1) +
+  geom_polygon(aes(x = long, y = lat, group = group),
+               data = polys,
+               color = colors[9],
+               fill = colors[6],
+               alpha = 0.5) +
+  labs(x = "Longitude", y = "Latitude")
 
 ####################################################
 ##########                                ##########

@@ -56,3 +56,52 @@ dat <- dat %>%
   mutate(var6 = lag(var1, 1)) %>%
   ungroup() %>%
   mutate(var5 = lag(var1, 1))
+
+makeVector <- function(x = numeric()) {
+  m <- NULL
+  set <- function(y) { # 主函数没有设定参数
+    x <- y ##    因为没有参数，因此不会被覆盖
+    m <- NULL  
+  }
+  get <- function() x  #主函数的参数
+  setmean <- function(mean) m <- mean  # 主函数没有mean参数，无法更改m
+  getmean <- function() m  # 取 主函数第一行的NULL值
+  list(set = set, get = get,
+       setmean = setmean,
+       getmean = getmean)
+}
+
+a <- makeVector(c(1,2,3))
+a$set()
+a$get()
+a$getmean()
+a$setmean()
+
+
+makeVector <- function(x = numeric()) {
+  m <- NULL
+  set <- function(y) { # 主函数没有设定参数,y是伪参数
+    x <- y ##    因为没有参数，因此不会被覆盖
+    m <- 2    #  这行不会运行 
+  }
+  get <- function() x  #主函数的参数
+  setmean <- function(mean) m <- mean  # mean是伪参数，无法更改m
+  getmean <- function() m  # 取 主函数第一行的NULL
+  list(set = set, get = get,
+       setmean = setmean,
+       getmean = getmean)
+}
+
+a <- makeVector(x=c(1,2,3))
+a$set()
+a$get()
+a$getmean()
+a$setmean()
+
+
+
+a$get()
+a$setmean(c(100,101,102))
+a$getmean()
+
+

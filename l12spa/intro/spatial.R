@@ -407,14 +407,13 @@ download.file(url4,dest4)
 
 ## 已经在github文件夹中，不需要下载
 
-setwd("/Users/liding/E/Bdata/liding17/2018R/l14spa/intro")
+setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
 
 
 ## Let's open a world map Shapefile
 
-map <- readShapePoly("world",IDvar="MAP_CCODE",proj4string=CRS("+proj=eqc +lon_0=90w"))          ## Equidistant Cylindrical
+map <- readShapePoly("world",IDvar="MAP_CCODE",proj4string=CRS("+proj=eqc +lon_0=90E"))          ## Equidistant Cylindrical
 summary(map)
-
 
 ## Plot the study region
 
@@ -429,7 +428,6 @@ dev.off()
 polity <- read.csv("polity.csv")
 names(polity)
 
-
 ## The two maps have common ID variable: CCODE
 ## Four step merging procedure:
 ## (1) Extract data.frame from map
@@ -437,16 +435,14 @@ names(polity)
 ## (3) Re-order new merged data.frame to conform with map
 ## (4) Use spCbind to join merged data.frame to map
  
-m_ccode <- as.data.frame(map)       
+m_ccode <- as.data.frame(map)  
 merged <- merge(x=m_ccode, y=polity, by.x="CCODE", by.y="ccode", all.x=T, all.y=F)
-
 merged <- merged[order(merged$MAP_CCODE),]
 rownames(merged) <- map$MAP_CCODE
 
 # 合并地图与新数据
 map2 <- spCbind(map,merged)
 names(map2)
-
 
 ## Remove duplicate columns
 
@@ -457,10 +453,6 @@ map2$MAP_CCODE.1 <- NULL
 
 
 ## Recode Polity variable
-
-map2$polity <- ifelse(map2$polity==-66,NA,map2$polity)
-map2$polity <- ifelse(map2$polity==-77,NA,map2$polity)
-map2$polity <- ifelse(map2$polity==-88,NA,map2$polity)
 
 map2$polity <- ifelse(map2$polity==-66,NA,map2$polity)
 map2$polity <- ifelse(map2$polity==-77,NA,map2$polity)
@@ -480,6 +472,124 @@ dev.off()
 ## Save new shapefile
 
 # writePolyShape(map2, "Polity_Map")
+
+library(rgdal)
+library(sf)
+library(ggplot2)
+library(maptools)
+setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
+
+## 第一步：读入地图
+##方法1 Let's open a world map Shapefile
+map <-rgdal::readOGR ("world.shp",p4s="+proj=eqc +lon_0=90E")  
+summary(map)
+
+
+#dum = fortify(map, region = "CCODE")
+#ggplot(dum, aes(x = long, y = lat)) + geom_path(aes(group = group))
+
+##方法2
+map <-sf::st_read("world.shp") 
+summary(map)
+#此种方法读进来可以直接作图
+ggplot(map) +
+  geom_sf()  +
+  theme_bw()
+
+map<- as(map, "Spatial")
+summary(map)
+
+## 查看地图
+par(mar=rep(0,4))
+plot(map)
+dev.off()
+
+# 第二步，读入外部属性数据
+## Open POLITY IV dataset
+polity <- read.csv("polity.csv")
+names(polity)
+names(polity)[2] <- "CCODE" ## 统一为大写，merge命令不需要统一
+
+m_ccode <- as.data.frame(map)
+#m_ccode <- map@data  # 这样也可以
+
+#第三步：合并外部属性
+#方法1：使用merge函数会改变数据顺序
+#所以先保存地理单元排序
+m_ccode$ID <- rownames(m_ccode)
+merged <- sp::merge(x=m_ccode, y=polity, by.x="CCODE", by.y="CCODE", all.x=T, all.y=F)
+#还原地理单元ID
+rownames(merged) <- merged$ID
+#再排序数据
+merged <- merged[order(as.numeric(merged$ID)),]
+
+# 方法2：
+#使用join函数 不会改变顺序 使用这个命令比较方便 
+merged <- plyr::join(x=m_ccode, y=polity, by="CCODE",type="left")
+
+
+#第四步：合并地图与新属性数据
+map2 <- spCbind(map,merged)
+
+# 进一步加工
+## Remove duplicate columns
+map2$CCODE.1 <- NULL
+map2$SP_ID.1 <- NULL
+map2$COUNTRY.1 <- NULL
+map2$MAP_CCODE.1 <- NULL
+
+## Recode Polity variable
+map2$polity <- ifelse(map2$polity==-66,NA,map2$polity)
+map2$polity <- ifelse(map2$polity==-77,NA,map2$polity)
+map2$polity <- ifelse(map2$polity==-88,NA,map2$polity)
+
+# 第五步：制作地图
+## 方法1 
+## Plot POLITY scores
+dem.palette <- colorRampPalette(c("red", "green"), space = "rgb")
+spplot(map2,"polity2",col.regions=dem.palette(20), main="Polity IV Democracy Scores (2008)")    
+dev.off()       
+
+## 方法2
+## 使用gglot2
+
+library(tidyverse)
+map3 <- map2 %>%
+  st_as_sf(map2) %>%
+  mutate(area = st_area(geometry))%>%
+  mutate(COUNTRY = COUNTRY%>% forcats::fct_reorder(-area)) %>%
+  ggplot() +
+  geom_sf(aes(fill = polity2))
+
+
+
+## 使用ggplot2的方法2
+# fortify得到地理属性数据
+map@data$id <- rownames(map@data)
+mapdata <- fortify(map, region="id")
+# 将外部数据与di
+mergdata <- merge(x=map@data, y=polity, by.x="CCODE", by.y="CCODE", all.x=T, all.y=F)
+
+#属性数据与地理数据合并
+mapDF <- merge(mapdata,mergdata, by = "id")
+#group 变量不可少
+ggplot(mapdata, aes(x = long, y = lat) )+
+   geom_path(aes(group = group))
+
+#依据关注变量作图
+ggplot(mapDF, aes(x = long, y = lat,group = group,fill=polity2) )+
+  geom_polygon()  +
+  geom_path(color = "grey") +
+  coord_equal() +
+  theme(legend.position = "none", title = element_blank(),
+        axis.text = element_blank())
+
+# data + mapdata 分开
+ggplot(mergdata, aes(map_id =id )) +
+  geom_map(aes(fill = polity2), map =mapdata ) +
+  coord_equal()+
+  expand_limits(x = mapdata$long, y = mapdata$lat)
+
 
 ####################################################
 ####################################################
@@ -579,7 +689,7 @@ lm1 <- localmoran(data$Bush_pct, listw=W_cont_el_mat, zero.policy=T)
 data$lm1 <- abs(lm1[,4]) ## Extract z-scores
 
 lm.palette <- colorRampPalette(c("white","orange", "red"), space = "rgb")
-# proj4string(data) <- CRS("+proj=lcc")
+proj4string(data) <- CRS("+proj=lcc")
 spplot(data, zcol="lm1", col.regions=lm.palette(20), main="Local Moran's I (|z| scores)", pretty=T)
 
 
