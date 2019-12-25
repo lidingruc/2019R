@@ -289,8 +289,8 @@ http://www.xuetangx.com/courses/course-v1:TsinghuaX+70000662+2018_T2/about
 Intro to GIS and Spatial Analysis： 
 https://mgimond.github.io/Spatial/index.html 
 
-传播大数据：
-王成军  Githubhttps://github.com/computational-class/ 
+传播大数据，王成军  Github
+https://github.com/computational-class/ 
 
 文本数据：
 https://www.tidytextmining.com/
