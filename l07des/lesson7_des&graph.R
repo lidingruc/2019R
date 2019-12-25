@@ -24,7 +24,7 @@ setwd("/Users/liding/E/Bdata/liding17/2018R")
 library(haven)
 cgss2013<-read_dta('./data/cgss2013.dta',encoding="gb18030") 
 
-# 保留变量标签,因为后面的as.numeric会将变量的变迁丢失
+# 保留变量标签,因为后面的as.numeric会将变量的标签丢失
 labelcgss <- get_label(cgss2013)
 cgss2013<- cgss2013 %>% 
   mutate_all(~ replace(., .==-1|.==-2|.==-3|.==9999997|.==9999998|.==9999999, NA)) %>%  

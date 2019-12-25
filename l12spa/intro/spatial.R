@@ -84,6 +84,8 @@ url <- url("http://www.people.fas.harvard.edu/~zhukov/Datasets.RData")
 load(url)
 ls()
 
+library(tidyverse)
+filter
 
 ##或者 If loading from URL fails...
 
@@ -484,12 +486,12 @@ setwd("/Users/liding/E/Bdata/2019R/l12spa/intro")
 map <-rgdal::readOGR ("world.shp",p4s="+proj=eqc +lon_0=90E")  
 summary(map)
 
-
 #dum = fortify(map, region = "CCODE")
 #ggplot(dum, aes(x = long, y = lat)) + geom_path(aes(group = group))
 
 ##方法2
 map <-sf::st_read("world.shp") 
+
 summary(map)
 #此种方法读进来可以直接作图
 ggplot(map) +
@@ -503,6 +505,7 @@ summary(map)
 par(mar=rep(0,4))
 plot(map)
 dev.off()
+
 
 # 第二步，读入外部属性数据
 ## Open POLITY IV dataset
@@ -529,7 +532,7 @@ merged <- plyr::join(x=m_ccode, y=polity, by="CCODE",type="left")
 
 
 #第四步：合并地图与新属性数据
-map2 <- spCbind(map,merged)
+map2 <- maptools::spCbind(map,merged)
 
 # 进一步加工
 ## Remove duplicate columns
@@ -542,6 +545,7 @@ map2$MAP_CCODE.1 <- NULL
 map2$polity <- ifelse(map2$polity==-66,NA,map2$polity)
 map2$polity <- ifelse(map2$polity==-77,NA,map2$polity)
 map2$polity <- ifelse(map2$polity==-88,NA,map2$polity)
+
 
 # 第五步：制作地图
 ## 方法1 

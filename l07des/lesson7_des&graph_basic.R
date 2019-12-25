@@ -237,7 +237,6 @@ plot(calories ~ sugars, data = UScereal) # formula notation
 
 plot(UScereal[, c(2:8, 10)]) # 8个变量的scatterplot matrix
 
-
 # 一个连续变量和一个分类变量
 # One Continuous Variable and One Categorical Variable
 
