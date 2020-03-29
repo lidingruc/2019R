@@ -243,3 +243,59 @@ python爬虫：http://note.youdao.com/noteshare?id=8d72a2741f381b292d40c7583047c
 
 提交作业12：尝试爬取北大未名BBS所有学生社团版面开版时间
 https://bbs.pku.edu.cn/v2/board.php?bid=682
+
+
+## 进一步自学的资料
+
+### R语言与统计基础
+中文版教材《R语言实战》、《数据科学中的R语言》
+
+R for data science ： http://r4ds.had.co.nz/
+
+An Introduction to Statistical and Data Sciences via R
+ http://moderndive.com/index.html
+
+斯坦福大学R入门：
+https://sejdemyr.github.io/r-tutorials/basics/
+
+普林斯顿大学Germán Rodríguez统计主页
+http://data.princeton.edu/wws509/
+
+宾州大学统计在线课程：
+https://onlinecourses.science.psu.edu/statprogram/programs
+
+加州大学统计服务中心：
+https://stats.idre.ucla.edu/r/
+
+哈佛大学Gary King 高级统计课程
+https://projects.iq.harvard.edu/gov2001
+
+### 大数据相关拓展
+
+中国人民大学覃雄派数据科学概论：
+https://blog.csdn.net/xiongpai1971/article/details/89364071
+
+哈佛大学大数据课程：
+http://cs109.github.io/2015/index.html
+
+大数据与经济学：哈佛大学Using Big Data to Solve Economic and Social Problems
+https://opportunityinsights.org/course/ 
+
+大数据与城市规划：
+
+大数据与城市规划：龙瀛 学堂在线：
+http://www.xuetangx.com/courses/course-v1:TsinghuaX+70000662+2018_T2/about 
+
+Intro to GIS and Spatial Analysis： 
+https://mgimond.github.io/Spatial/index.html 
+
+传播大数据，王成军  Github
+https://github.com/computational-class/ 
+
+文本数据：
+https://www.tidytextmining.com/
+
+机器学习：
+https://see.stanford.edu/Course/CS229
+
+
